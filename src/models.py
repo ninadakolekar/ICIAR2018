@@ -88,7 +88,7 @@ class PatchWiseModel(BaseModel):
                         index * len(images),
                         len(train_loader.dataset),
                         100. * index / len(train_loader),
-                        loss.data[0],
+                        loss.item(),
                         100 * correct / total
                     ))
 
@@ -309,7 +309,7 @@ class ImageWiseModel(BaseModel):
                         index * len(images),
                         len(train_loader.dataset),
                         100. * index / len(train_loader),
-                        loss.data[0],
+                        loss.item(),
                         100 * correct / total
                     ))
 
@@ -352,7 +352,7 @@ class ImageWiseModel(BaseModel):
 
             output = self.network(Variable(images, volatile=True))
 
-            val_loss += F.nll_loss(output, Variable(labels), size_average=False).data[0]
+            val_loss += F.nll_loss(output, Variable(labels), size_average=False).item()
             _, predicted = torch.max(output.data, 1)
             correct += torch.sum(predicted == labels)
 
