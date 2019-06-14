@@ -7,7 +7,7 @@ from torch.utils.data import Dataset
 from torchvision.transforms import transforms
 from .patch_extractor import PatchExtractor
 
-LABELS = ['Normal', 'Benign', 'InSitu', 'Invasive']
+LABELS = ['grape','round','stellate']
 IMAGE_SIZE = (2048, 1536)
 PATCH_SIZE = 512
 
@@ -18,7 +18,7 @@ class PatchWiseDataset(Dataset):
 
         wp = int((IMAGE_SIZE[0] - PATCH_SIZE) / stride + 1)
         hp = int((IMAGE_SIZE[1] - PATCH_SIZE) / stride + 1)
-        labels = {name: index for index in range(len(LABELS)) for name in glob.glob(path + '/' + LABELS[index] + '/*.tif')}
+        labels = {name: index for index in range(len(LABELS)) for name in glob.glob(path + '/' + LABELS[index] + '/*.jpg')}
 
         self.path = path
         self.stride = stride
@@ -57,7 +57,7 @@ class ImageWiseDataset(Dataset):
     def __init__(self, path, stride=PATCH_SIZE, rotate=False, flip=False, enhance=False):
         super().__init__()
 
-        labels = {name: index for index in range(len(LABELS)) for name in glob.glob(path + '/' + LABELS[index] + '/*.tif')}
+        labels = {name: index for index in range(len(LABELS)) for name in glob.glob(path + '/' + LABELS[index] + '/*.jpg')}
 
         self.path = path
         self.stride = stride
@@ -103,7 +103,7 @@ class TestDataset(Dataset):
         super().__init__()
 
         if os.path.isdir(path):
-            names = [name for name in glob.glob(path + '/*.tif')]
+            names = [name for name in glob.glob(path + '/*.jpg')]
         else:
             names = [path]
 
