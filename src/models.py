@@ -197,9 +197,9 @@ class PatchWiseModel(BaseModel):
             # max_prop: max of probabilities among y axis: (1, 4), reverse, and take the index  of the largest value
             # maj_prop: majority voting: create a one-hot vector of predicted values: (12, 4), sum among y axis: (1, 4), reverse, and take the index  of the largest value
 
-            sum_prob = 3 - np.argmax(np.sum(np.exp(output.data.cpu().numpy()), axis=0)[::-1])
-            max_prob = 3 - np.argmax(np.max(np.exp(output.data.cpu().numpy()), axis=0)[::-1])
-            maj_prob = 3 - np.argmax(np.sum(np.eye(4)[np.array(predicted).reshape(-1)], axis=0)[::-1])
+            sum_prob = 2 - np.argmax(np.sum(np.exp(output.data.cpu().numpy()), axis=0)[::-1])
+            max_prob = 2 - np.argmax(np.max(np.exp(output.data.cpu().numpy()), axis=0)[::-1])
+            maj_prob = 2 - np.argmax(np.sum(np.eye(3)[np.array(predicted).reshape(-1)], axis=0)[::-1])
 
             res.append([sum_prob, max_prob, maj_prob, file_name[0]])
 
@@ -342,7 +342,7 @@ class ImageWiseModel(BaseModel):
             print('\nEvaluating....')
 
         labels_true = []
-        labels_pred = np.empty((0, 4))
+        labels_pred = np.empty((0, 3))
 
         for images, labels in self._test_loader:
 
@@ -439,7 +439,7 @@ class ImageWiseModel(BaseModel):
             # maj_prop: majority voting: create a one-hot vector of predicted values: (12, 4),
             # sum among y axis: (1, 4), reverse, and take the index  of the largest value
 
-            maj_prob = 3 - np.argmax(np.sum(np.eye(4)[np.array(predicted).reshape(-1)], axis=0)[::-1])
+            maj_prob = 2 - np.argmax(np.sum(np.eye(3)[np.array(predicted).reshape(-1)], axis=0)[::-1])
 
             confidence = np.sum(np.array(predicted) == maj_prob) / n_bins if ensemble else torch.max(torch.exp(output.data))
             confidence = np.round(confidence * 100, 2)
