@@ -92,7 +92,7 @@ class PatchWiseNetwork(BaseNetwork):
         )
 
         self.classifier = nn.Sequential(
-            nn.Linear(channels * 64 * 64, 4),
+            nn.Linear(channels * 64 * 64, 3),
         )
 
         self.initialize_weights()
@@ -148,7 +148,7 @@ class ImageWiseNetwork(BaseNetwork):
             nn.ReLU(inplace=True),
             nn.Dropout(0.5, inplace=True),
 
-            nn.Linear(64, 4),
+            nn.Linear(64, 3),
         )
 
         self.initialize_weights()
