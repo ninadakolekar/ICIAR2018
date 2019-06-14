@@ -44,7 +44,7 @@ class PatchWiseModel(BaseModel):
     def train(self):
         self.network.train()
         print('Start training patch-wise network: {}\n'.format(time.strftime('%Y/%m/%d %H:%M')))
-
+        
         train_loader = DataLoader(
             dataset=PatchWiseDataset(path=self.args.dataset_path + TRAIN_PATH, stride=self.args.patch_stride, rotate=True, flip=True, enhance=True),
             batch_size=self.args.batch_size,
