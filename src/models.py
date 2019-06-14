@@ -130,9 +130,10 @@ class PatchWiseModel(BaseModel):
             if self.args.cuda:
                 images, labels = images.cuda(), labels.cuda()
 
-            output = self.network(Variable(images, volatile=True))
+            with torch.no_grad():
+                output = self.network(Variable(images, volatile=True))
 
-            test_loss += F.nll_loss(output, Variable(labels), size_average=False).data[0]
+            test_loss += F.nll_loss(output, Variable(labels), size_average=False).item()
             _, predicted = torch.max(output.data, 1)
             correct += torch.sum(predicted == labels)
 
