@@ -14,7 +14,7 @@ from sklearn.preprocessing import label_binarize
 from .datasets import *
 
 TRAIN_PATH = '/train'
-VALIDATION_PATH = '/validation'
+VALIDATION_PATH = '/valid'
 
 
 class BaseModel:
