@@ -53,7 +53,7 @@ class PatchWiseModel(BaseModel):
             num_workers=4
         )
 
-        if os.path.exists(os.path.join(args.checkpoints_path,"logs_{self.id}.csv")):
+        if os.path.exists(os.path.join(args.checkpoints_path,f"logs_{self.id}.csv")):
             print(f"Train logs exist")
             exit(0)
 
@@ -123,14 +123,14 @@ class PatchWiseModel(BaseModel):
 
         print('\nEnd of training, best accuracy: {}, best_epoch: {},mean accuracy: {}\n'.format(best_val_acc,best_epoch, mean_val_acc // epoch))
 
-        logs.to_csv(f"logs_{self.id}.csv")
+        logs.to_csv(os.path.join(self.args.checkpoints_path,f"logs_{self.id}.csv"))
 
         plt.figure(figsize=(5,5))
         sns.heatmap(best_cm, xticklabels=LABELS, yticklabels=LABELS, annot=True, fmt="d");
         plt.title("Confusion matrix")
         plt.ylabel('True class')
         plt.xlabel('Predicted class')
-        plt.savefig(f"cm_{self.id}_{best_epoch}.png")
+        plt.savefig(os.path.join(args.checkpoints_path,f"cm_{self.id}_{best_epoch}.png"))
 
     def validate(self, verbose=True):
         self.network.eval()
