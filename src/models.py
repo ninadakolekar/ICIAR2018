@@ -111,6 +111,10 @@ class PatchWiseModel(BaseModel):
 
             train_loss,train_acc,val_loss,val_acc = self.validate()
 
+            if (epoch-1)%5 == 0:
+                print('Saving model to "{}"'.format(os.path.join(self.weights,f"weights_{self.id}_{epoch}.pth")))
+                torch.save(self.network.state_dict(), os.path.join(self.weights,f"weights_{self.id}_{epoch}.pth"))
+
             print('\nEnd of epoch {}, time: {}, val_acc: {}'.format(epoch, datetime.datetime.now() - stime,val_acc))
 
             mean_val_acc += val_acc
