@@ -53,7 +53,7 @@ class PatchWiseModel(BaseModel):
             num_workers=4
         )
 
-        if os.path.exists(os.path.join(args.checkpoints_path,f"logs_{self.id}.csv")):
+        if os.path.exists(os.path.join(args.checkpoints_path,f"logs_{args.id}.csv")):
             print(f"Train logs exist")
             exit(0)
 
