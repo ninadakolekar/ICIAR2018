@@ -94,7 +94,7 @@ class PatchWiseModel(BaseModel):
                 loss.backward()
                 optimizer.step()
 
-                print("hey",output.data.size())
+                print("hey",output.size())
 
                 _, predicted = torch.max(output.data, 1)
                 correct += torch.sum(predicted == labels)
