@@ -40,21 +40,21 @@ class BaseModel:
 class PatchWiseModel(BaseModel):
     def __init__(self, args, network):
         super(PatchWiseModel, self).__init__(args, network, args.checkpoints_path + '/weights_' + network.name() + '.pth')
-
-    def train(self):
-        self.network.train()
-        print('Start training patch-wise network: {}\n'.format(time.strftime('%Y/%m/%d %H:%M')))
-        
-        train_loader = DataLoader(
+        self.train_loader = DataLoader(
             dataset=PatchWiseDataset(path=self.args.dataset_path + TRAIN_PATH, stride=self.args.patch_stride, rotate=True, flip=True, enhance=True),
             batch_size=self.args.batch_size,
             shuffle=True,
             num_workers=4
         )
+    def train(self):
+        self.network.train()
+        print('Start training patch-wise network: {}\n'.format(time.strftime('%Y/%m/%d %H:%M')))
+        
         optimizer = optim.Adam(self.network.parameters(), lr=self.args.lr, betas=(self.args.beta1, self.args.beta2))
         scheduler = optim.lr_scheduler.StepLR(optimizer, step_size=20, gamma=0.1)
-        best = self.validate(verbose=False)
-        mean = 0
+        best_val_acc = 0
+        mean_val_acc = 0
+        best_epoch = 0
         epoch = 0
 
         for epoch in range(1, self.args.epochs + 1):
@@ -66,7 +66,7 @@ class PatchWiseModel(BaseModel):
             correct = 0
             total = 0
 
-            for index, (images, labels) in enumerate(train_loader):
+            for index, (images, labels) in enumerate(self.train_loader):
 
                 if self.args.cuda:
                     images, labels = images.cuda(), labels.cuda()
@@ -86,21 +86,22 @@ class PatchWiseModel(BaseModel):
                         epoch,
                         self.args.epochs,
                         index * len(images),
-                        len(train_loader.dataset),
-                        100. * index / len(train_loader),
+                        len(self.train_loader.dataset),
+                        100. * index / len(self.train_loader),
                         loss.item(),
                         100 * correct / total
                     ))
 
             print('\nEnd of epoch {}, time: {}'.format(epoch, datetime.datetime.now() - stime))
-            acc = self.validate()
-            mean += acc
-            if acc > best:
-                best = acc
+            train_loss,train_acc,val_loss,val_acc = self.validate()
+            mean_val_acc += val_acc
 
-            self.save()
+            if val_acc > best_val_acc:
+                best_epoch = epoch
+                best_val_acc = val_acc
+                self.save()
 
-        print('\nEnd of training, best accuracy: {}, mean accuracy: {}\n'.format(best, mean // epoch))
+        print('\nEnd of training, best accuracy: {}, best_epoch: {},mean accuracy: {}\n'.format(best_val_acc,best_epoch, mean_val_acc // epoch))
 
     def validate(self, verbose=True):
         self.network.eval()
@@ -124,6 +125,28 @@ class PatchWiseModel(BaseModel):
         )
         if verbose:
             print('\nEvaluating....')
+
+        for images, labels in self.train_loader:
+
+            if self.args.cuda:
+                images, labels = images.cuda(), labels.cuda()
+
+            with torch.no_grad():
+                output = self.network(Variable(images))
+
+            train_loss += F.nll_loss(output, Variable(labels), size_average=False).item()
+            _, predicted = torch.max(output.data, 1)
+            correct += torch.sum(predicted == labels)
+
+            for label in range(classes):
+                t_labels = labels == label
+                p_labels = predicted == label
+                tp[label] += torch.sum(t_labels == (p_labels * 2 - 1))
+                tpfp[label] += torch.sum(p_labels)
+                tpfn[label] += torch.sum(t_labels)
+
+        train_loss /= len(self.train_loader.dataset)
+        train_acc = 100. * correct / len(self.train_loader.dataset)
 
         for images, labels in test_loader:
 
@@ -150,7 +173,7 @@ class PatchWiseModel(BaseModel):
             f1[label] = 2 * precision[label] * recall[label] / (precision[label] + recall[label] + 1e-8)
 
         test_loss /= len(test_loader.dataset)
-        acc = 100. * correct / len(test_loader.dataset)
+        test_acc = 100. * correct / len(test_loader.dataset)
 
         if verbose:
             print('Average loss: {:.4f}, Accuracy: {}/{} ({:.0f}%)'.format(
@@ -169,7 +192,8 @@ class PatchWiseModel(BaseModel):
                 ))
 
             print('')
-        return acc
+
+        return train_loss, train_acc,test_loss,test_acc
 
     def test(self, path, verbose=True):
         self.network.eval()
