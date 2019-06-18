@@ -109,8 +109,10 @@ class PatchWiseModel(BaseModel):
                         100 * correct / total
                     ))
 
-            print('\nEnd of epoch {}, time: {}'.format(epoch, datetime.datetime.now() - stime))
             train_loss,train_acc,val_loss,val_acc = self.validate()
+
+            print('\nEnd of epoch {}, time: {}, val_acc: {}'.format(epoch, datetime.datetime.now() - stime,val_acc))
+
             mean_val_acc += val_acc
 
             if val_acc > best_val_acc:
@@ -130,7 +132,7 @@ class PatchWiseModel(BaseModel):
         plt.title("Confusion matrix")
         plt.ylabel('True class')
         plt.xlabel('Predicted class')
-        plt.savefig(os.path.join(args.checkpoints_path,f"cm_{self.id}_{best_epoch}.png"))
+        plt.savefig(os.path.join(self.args.checkpoints_path,f"cm_{self.id}_{best_epoch}.png"))
 
     def validate(self, verbose=True):
         self.network.eval()
