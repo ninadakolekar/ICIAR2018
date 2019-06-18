@@ -25,7 +25,7 @@ class ModelOptions:
         parser.add_argument('--network', type=str, default='0', help='train patch-wise network: 1, image-wise network: 2 or both: 0 (default: 0)')
         parser.add_argument('--channels', type=int, default=1, help='number of channels created by the patch-wise network that feeds into the image-wise network (default: 1)')
         parser.add_argument('--debug', type=int, default=0, help='debugging (default: 0)')
-
+        parser.add_argument('--tid',type=str,required=True)
         self._parser = parser
 
     def parse(self):

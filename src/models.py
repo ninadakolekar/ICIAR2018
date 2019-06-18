@@ -2,14 +2,20 @@ import time
 import time
 import ntpath
 import datetime
+
+import pandas as pd
 import matplotlib.pyplot as plt
+
 import torch.optim as optim
 import torch.nn.functional as F
 import matplotlib.pyplot as ply
 from torch.autograd import Variable
 from torch.utils.data import DataLoader, TensorDataset
-from sklearn.metrics import roc_curve, auc
+
+from sklearn.metrics import roc_curve, auc, confusion_matrix
 from sklearn.preprocessing import label_binarize
+
+import seaborn as sns
 
 from .datasets import *
 
@@ -46,7 +52,17 @@ class PatchWiseModel(BaseModel):
             shuffle=True,
             num_workers=4
         )
+
+        if os.path.exists(os.path.join(args.checkpoints_path,"logs_{self.id}.csv")):
+            print(f"Train logs exist")
+            exit(0)
+
+        self.id = args.tid
+
     def train(self):
+
+        logs = pd.DataFrame(columns=['epoch', 'train_loss', 'train_acc', 'val_loss', 'val_acc'])
+
         self.network.train()
         print('Start training patch-wise network: {}\n'.format(time.strftime('%Y/%m/%d %H:%M')))
         
@@ -55,6 +71,7 @@ class PatchWiseModel(BaseModel):
         best_val_acc = 0
         mean_val_acc = 0
         best_epoch = 0
+        best_cm = None
         epoch = 0
 
         for epoch in range(1, self.args.epochs + 1):
@@ -99,9 +116,21 @@ class PatchWiseModel(BaseModel):
             if val_acc > best_val_acc:
                 best_epoch = epoch
                 best_val_acc = val_acc
+                best_cm = confusion_matrix(labels, predicted)
                 self.save()
 
+            logs.loc[epoch] = [epoch,train_loss,train_acc,val_loss,val_acc]
+
         print('\nEnd of training, best accuracy: {}, best_epoch: {},mean accuracy: {}\n'.format(best_val_acc,best_epoch, mean_val_acc // epoch))
+
+        logs.to_csv(f"logs_{self.id}.csv")
+
+        plt.figure(figsize=(5,5))
+        sns.heatmap(best_cm, xticklabels=LABELS, yticklabels=LABELS, annot=True, fmt="d");
+        plt.title("Confusion matrix")
+        plt.ylabel('True class')
+        plt.xlabel('Predicted class')
+        plt.savefig(f"cm_{self.id}_{best_epoch}.png")
 
     def validate(self, verbose=True):
         self.network.eval()
