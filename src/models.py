@@ -130,7 +130,7 @@ class PatchWiseModel(BaseModel):
             if val_acc > best_val_acc:
                 best_epoch = epoch
                 best_val_acc = val_acc
-                best_cm = confusion_matrix(labels, predicted)
+                best_cm = confusion_matrix(labels.cpu().numpy(), predicted.cpu().numpy())
                 self.save()
 
             logs.loc[epoch] = [epoch,train_loss,train_acc,val_loss,val_acc]
