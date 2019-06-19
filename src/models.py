@@ -111,9 +111,6 @@ class PatchWiseModel(BaseModel):
                         100 * correct / total
                     ))
 
-                if index == 10:
-                    break
-
             train_loss /= len(self.train_loader.dataset)
             train_acc = 100 * correct / total
 
