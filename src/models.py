@@ -119,7 +119,7 @@ class PatchWiseModel(BaseModel):
 
             val_loss,val_acc = self.validate(verbose=False)
 
-            if (epoch-1)%5 == 0 or epoch == self.args.epoch:
+            if (epoch-1)%5 == 0 or epoch == self.args.epochs:
                 print('Saving model to "{}"'.format(self.args.checkpoints_path + '/weights_' + self.network.name() + '_epoch'+str(epoch)+'.pth'))
                 torch.save(self.network.state_dict(),self.args.checkpoints_path + '/weights_' + self.network.name() + '_epoch'+str(epoch)+'.pth')
 
