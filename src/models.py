@@ -114,7 +114,7 @@ class PatchWiseModel(BaseModel):
             train_loss /= len(self.train_loader.dataset)
             train_acc = 100 * correct / total
 
-            val_loss,val_acc = self.validate()
+            val_loss,val_acc = self.validate(verbose=False)
 
             if (epoch-1)%5 == 0 or epoch == self.args.epoch:
                 print('Saving model to "{}"'.format(os.path.join(self.weights,f"weights_{self.id}_{epoch}.pth")))
