@@ -111,14 +111,17 @@ class PatchWiseModel(BaseModel):
                         100 * correct / total
                     ))
 
+                if index == 10:
+                    break
+
             train_loss /= len(self.train_loader.dataset)
             train_acc = 100 * correct / total
 
             val_loss,val_acc = self.validate(verbose=False)
 
             if (epoch-1)%5 == 0 or epoch == self.args.epoch:
-                print('Saving model to "{}"'.format(args.checkpoints_path + '/weights_' + network.name() + '_epoch'+str(epoch)+'.pth'))
-                torch.save(self.network.state_dict(),args.checkpoints_path + '/weights_' + network.name() + '_epoch'+str(epoch)+'.pth')
+                print('Saving model to "{}"'.format(self.args.checkpoints_path + '/weights_' + self.network.name() + '_epoch'+str(epoch)+'.pth'))
+                torch.save(self.network.state_dict(),self.args.checkpoints_path + '/weights_' + self.network.name() + '_epoch'+str(epoch)+'.pth')
 
             print('\nEnd of epoch {}, time: {}, val_acc: {}'.format(epoch, datetime.datetime.now() - stime,val_acc))
 
