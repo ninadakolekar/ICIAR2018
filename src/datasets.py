@@ -9,7 +9,7 @@ from .patch_extractor import PatchExtractor
 
 LABELS = ['grape','round','stellate']
 IMAGE_SIZE = (2048, 1536)
-PATCH_SIZE = 512
+PATCH_SIZE = 256
 
 
 class PatchWiseDataset(Dataset):
