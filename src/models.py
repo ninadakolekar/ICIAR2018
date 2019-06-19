@@ -126,10 +126,9 @@ class PatchWiseModel(BaseModel):
                 self.save()
 
             logs.loc[epoch] = [epoch,train_loss,train_acc,val_loss,val_acc]
+            logs.to_csv(os.path.join(self.args.checkpoints_path,f"logs_{self.id}.csv"),index=False)
 
         print('\nEnd of training, best accuracy: {}, best_epoch: {},mean accuracy: {}\n'.format(best_val_acc,best_epoch, mean_val_acc // epoch))
-
-        logs.to_csv(os.path.join(self.args.checkpoints_path,f"logs_{self.id}.csv"))
 
         plt.figure(figsize=(5,5))
         sns.heatmap(best_cm, xticklabels=LABELS, yticklabels=LABELS, annot=True, fmt="d");
@@ -142,6 +141,8 @@ class PatchWiseModel(BaseModel):
         self.network.eval()
 
         test_loss = 0
+        train_loss = 0
+
         correct = 0
         classes = len(LABELS)
 
