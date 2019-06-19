@@ -82,6 +82,7 @@ class PatchWiseModel(BaseModel):
 
             correct = 0
             total = 0
+            train_loss = 0
 
             for index, (images, labels) in enumerate(self.train_loader):
 
@@ -91,6 +92,7 @@ class PatchWiseModel(BaseModel):
                 optimizer.zero_grad()
                 output = self.network(Variable(images))
                 loss = F.nll_loss(output, Variable(labels))
+                train_loss += loss
                 loss.backward()
                 optimizer.step()
 
@@ -109,9 +111,12 @@ class PatchWiseModel(BaseModel):
                         100 * correct / total
                     ))
 
-            train_loss,train_acc,val_loss,val_acc = self.validate()
+            train_loss /= len(self.train_loader.dataset)
+            train_acc = 100 * correct / total
 
-            if (epoch-1)%5 == 0:
+            val_loss,val_acc = self.validate()
+
+            if (epoch-1)%5 == 0 or epoch == self.args.epoch:
                 print('Saving model to "{}"'.format(os.path.join(self.weights,f"weights_{self.id}_{epoch}.pth")))
                 torch.save(self.network.state_dict(), os.path.join(self.weights,f"weights_{self.id}_{epoch}.pth"))
 
@@ -141,7 +146,6 @@ class PatchWiseModel(BaseModel):
         self.network.eval()
 
         test_loss = 0
-        train_loss = 0
 
         correct = 0
         classes = len(LABELS)
@@ -162,28 +166,6 @@ class PatchWiseModel(BaseModel):
         if verbose:
             print('\nEvaluating....')
 
-        for images, labels in self.train_loader:
-
-            if self.args.cuda:
-                images, labels = images.cuda(), labels.cuda()
-
-            with torch.no_grad():
-                output = self.network(Variable(images))
-
-            train_loss += F.nll_loss(output, Variable(labels), size_average=False).item()
-            _, predicted = torch.max(output.data, 1)
-            correct += torch.sum(predicted == labels)
-
-            for label in range(classes):
-                t_labels = labels == label
-                p_labels = predicted == label
-                tp[label] += torch.sum(t_labels == (p_labels * 2 - 1))
-                tpfp[label] += torch.sum(p_labels)
-                tpfn[label] += torch.sum(t_labels)
-
-        train_loss /= len(self.train_loader.dataset)
-        train_acc = 100. * correct / len(self.train_loader.dataset)
-
         for images, labels in test_loader:
 
             if self.args.cuda:
@@ -192,7 +174,7 @@ class PatchWiseModel(BaseModel):
             with torch.no_grad():
                 output = self.network(Variable(images))
 
-            test_loss += F.nll_loss(output, Variable(labels), size_average=False).item()
+            test_loss += F.nll_loss(output, Variable(labels), reduction='sum').item()
             _, predicted = torch.max(output.data, 1)
             correct += torch.sum(predicted == labels)
 
@@ -229,7 +211,7 @@ class PatchWiseModel(BaseModel):
 
             print('')
 
-        return train_loss, train_acc,test_loss,test_acc
+        return test_loss,test_acc
 
     def test(self, path, verbose=True):
         self.network.eval()
@@ -412,7 +394,7 @@ class ImageWiseModel(BaseModel):
 
             output = self.network(Variable(images, volatile=True))
 
-            val_loss += F.nll_loss(output, Variable(labels), size_average=False).item()
+            val_loss += F.nll_loss(output, Variable(labels), reduction='sum').item()
             _, predicted = torch.max(output.data, 1)
             correct += torch.sum(predicted == labels)
 
