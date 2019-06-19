@@ -76,6 +76,10 @@ class PatchWiseModel(BaseModel):
 
         for epoch in range(1, self.args.epochs + 1):
 
+            if (epoch-1)%5 == 0 or epoch == self.args.epoch:
+                print('Saving model to "{}"'.format(args.checkpoints_path + '/weights_' + network.name() + '_epoch'+str(epoch)+'.pth')
+                torch.save(self.network.state_dict(),args.checkpoints_path + '/weights_' + network.name() + '_epoch'+str(epoch)+'.pth')
+
             self.network.train()
             scheduler.step()
             stime = datetime.datetime.now()
@@ -117,8 +121,8 @@ class PatchWiseModel(BaseModel):
             val_loss,val_acc = self.validate(verbose=False)
 
             if (epoch-1)%5 == 0 or epoch == self.args.epoch:
-                print('Saving model to "{}"'.format(os.path.join(self.weights,f"weights_{self.id}_{epoch}.pth")))
-                torch.save(self.network.state_dict(), os.path.join(self.weights,f"weights_{self.id}_{epoch}.pth"))
+                print('Saving model to "{}"'.format(args.checkpoints_path + '/weights_' + network.name() + '_epoch'+str(epoch)+'.pth')
+                torch.save(self.network.state_dict(),args.checkpoints_path + '/weights_' + network.name() + '_epoch'+str(epoch)+'.pth')
 
             print('\nEnd of epoch {}, time: {}, val_acc: {}'.format(epoch, datetime.datetime.now() - stime,val_acc))
 
