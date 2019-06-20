@@ -142,12 +142,12 @@ class PatchWiseModel(BaseModel):
 
         print('\nEnd of training, best accuracy: {}, best_epoch: {},mean accuracy: {}\n'.format(best_val_acc,best_epoch, mean_val_acc // epoch))
 
-        plt.figure(figsize=(5,5))
-        sns.heatmap(best_cm, xticklabels=LABELS, yticklabels=LABELS, annot=True, fmt="d");
-        plt.title("Confusion matrix")
-        plt.ylabel('True class')
-        plt.xlabel('Predicted class')
-        plt.savefig(os.path.join(self.args.checkpoints_path,f"cm_{self.id}_{best_epoch}.png"))
+        # plt.figure(figsize=(5,5))
+        # sns.heatmap(best_cm, xticklabels=LABELS, yticklabels=LABELS, annot=True, fmt="d");
+        # plt.title("Confusion matrix")
+        # plt.ylabel('True class')
+        # plt.xlabel('Predicted class')
+        # plt.savefig(os.path.join(self.args.checkpoints_path,f"cm_{self.id}_{best_epoch}.png"))
 
     def validate(self, verbose=True):
         self.network.eval()
