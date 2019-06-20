@@ -114,7 +114,6 @@ class TestDataset(Dataset):
         self.stride = stride
         self.augment = augment
         self.names = list((names))
-        self.labels = list(index)
 
     def __getitem__(self, index):
         file = self.names[index]
