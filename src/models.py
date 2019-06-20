@@ -4,6 +4,7 @@ import ntpath
 import datetime
 
 import pandas as pd
+import matplotlib as mpl
 import matplotlib.pyplot as plt
 
 import torch.optim as optim
@@ -21,6 +22,8 @@ from .datasets import *
 
 TRAIN_PATH = '/train'
 VALIDATION_PATH = '/valid'
+
+mpl.use('Agg')
 
 
 class BaseModel:
@@ -47,13 +50,12 @@ class PatchWiseModel(BaseModel):
     def __init__(self, args, network):
         super(PatchWiseModel, self).__init__(args, network, args.checkpoints_path)
 
-        # if self.args.dataset_path:
-        #     self.train_loader = DataLoader(
-        #         dataset=PatchWiseDataset(path=self.args.dataset_path + TRAIN_PATH, stride=self.args.patch_stride, rotate=True, flip=True, enhance=True),
-        #         batch_size=self.args.batch_size,
-        #         shuffle=True,
-        #         num_workers=4
-        #     )
+        self.train_loader = DataLoader(
+            dataset=PatchWiseDataset(path=self.args.dataset_path + TRAIN_PATH, stride=self.args.patch_stride, rotate=True, flip=True, enhance=True),
+            batch_size=self.args.batch_size,
+            shuffle=True,
+            num_workers=4
+        )
 
         if os.path.exists(os.path.join(args.checkpoints_path,f"logs_{args.tid}.csv")):
             print(f"Train logs exist")
@@ -87,6 +89,9 @@ class PatchWiseModel(BaseModel):
             train_loss = 0
 
             for index, (images, labels) in enumerate(self.train_loader):
+
+                if index > 5:
+                    break
 
                 if self.args.cuda:
                     images, labels = images.cuda(), labels.cuda()
