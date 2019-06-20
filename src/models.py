@@ -48,7 +48,7 @@ class BaseModel:
 
 class PatchWiseModel(BaseModel):
     def __init__(self, args, network):
-        super(PatchWiseModel, self).__init__(args, network, args.checkpoints_path)
+        super(PatchWiseModel, self).__init__(args, network, args.checkpoints_path+'/weights_'+network.name()+'.pth')
 
         self.train_loader = DataLoader(
             dataset=PatchWiseDataset(path=self.args.dataset_path + TRAIN_PATH, stride=self.args.patch_stride, rotate=True, flip=True, enhance=True),
