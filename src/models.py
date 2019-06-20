@@ -222,7 +222,7 @@ class PatchWiseModel(BaseModel):
         stime = datetime.datetime.now()
 
         if verbose:
-            print('\t sum\t\t max\t\t maj\t\t GT')
+            print('\t sum\t\t max\t\t maj\t')
 
         res = []
 
@@ -249,12 +249,11 @@ class PatchWiseModel(BaseModel):
             res.append([sum_prob, max_prob, maj_prob, file_name[0]])
             if verbose:
                 np.sum(output.data.cpu().numpy(), axis=0)
-                print('{}) \t {} \t {} \t {} \t {} \t {}'.format(
+                print('{}) \t {} \t {} \t {} \t {}'.format(
                     str(index + 1).rjust(2, '0'),
                     LABELS[sum_prob].ljust(8),
                     LABELS[max_prob].ljust(8),
                     LABELS[maj_prob].ljust(8),
-                    label[0].ljust(8),
                     ntpath.basename(file_name[0])))
 
         if verbose:
