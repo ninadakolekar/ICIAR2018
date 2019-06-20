@@ -222,11 +222,11 @@ class PatchWiseModel(BaseModel):
         stime = datetime.datetime.now()
 
         if verbose:
-            print('\t sum\t\t max\t\t maj')
+            print('\t sum\t\t max\t\t maj\t\t GT')
 
         res = []
 
-        for index, (image, file_name) in enumerate(data_loader):
+        for index, (image, label, file_name) in enumerate(data_loader):
             image = image.squeeze()
             if self.args.cuda:
                 image = image.cuda()
@@ -255,6 +255,7 @@ class PatchWiseModel(BaseModel):
                     LABELS[sum_prob].ljust(8),
                     LABELS[max_prob].ljust(8),
                     LABELS[maj_prob].ljust(8),
+                    label.ljust(8),
                     ntpath.basename(file_name[0])))
 
         if verbose:

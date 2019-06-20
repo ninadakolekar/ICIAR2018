@@ -104,6 +104,7 @@ class TestDataset(Dataset):
 
         if os.path.isdir(path):
             names = [name for index in range(len(LABELS)) for name in glob.glob(path + '/' + LABELS[index] + '/*.JPG')]
+            index = [LABELS[index] for index in range(len(LABELS)) for name in glob.glob(path + '/' + LABELS[index] + '/*.JPG')]
         else:
             names = [path]
 
@@ -112,7 +113,8 @@ class TestDataset(Dataset):
         self.path = path
         self.stride = stride
         self.augment = augment
-        self.names = list(sorted(names))
+        self.names = list((names))
+        self.labels = list(index)
 
     def __getitem__(self, index):
         file = self.names[index]
@@ -136,7 +138,7 @@ class TestDataset(Dataset):
                 for i in range(len(patches)):
                     b[k, i] = transforms.ToTensor()(patches[i])
 
-            return b, file
+            return b, self.labels[index], file
 
     def __len__(self):
         return len(self.names)
