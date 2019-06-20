@@ -247,7 +247,6 @@ class PatchWiseModel(BaseModel):
             maj_prob = 2 - np.argmax(np.sum(np.eye(3)[np.array(predicted.cpu().numpy()).reshape(-1)], axis=0)[::-1])
 
             res.append([sum_prob, max_prob, maj_prob, file_name[0]])
-            print(label)
             if verbose:
                 np.sum(output.data.cpu().numpy(), axis=0)
                 print('{}) \t {} \t {} \t {} \t {} \t {}'.format(
