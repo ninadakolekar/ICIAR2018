@@ -103,9 +103,11 @@ class TestDataset(Dataset):
         super().__init__()
 
         if os.path.isdir(path):
-            names = [name for name in glob.glob(path + '/*.jpg')]
+            names = [name for name in glob.glob(path + '/*.JPG')]
         else:
             names = [path]
+
+        print(len(names))
 
         self.path = path
         self.stride = stride
