@@ -32,6 +32,7 @@ class BaseModel:
 
     def load(self):
         try:
+            print(self.weights)
             if os.path.exists(self.weights):
                 print('Loading "patch-wise" model...')
                 self.network.load_state_dict(torch.load(self.weights))
