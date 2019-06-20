@@ -250,12 +250,12 @@ class PatchWiseModel(BaseModel):
             print(label)
             if verbose:
                 np.sum(output.data.cpu().numpy(), axis=0)
-                print('{}) \t {} \t {} \t {} \t {}'.format(
+                print('{}) \t {} \t {} \t {} \t {} \t {}'.format(
                     str(index + 1).rjust(2, '0'),
                     LABELS[sum_prob].ljust(8),
                     LABELS[max_prob].ljust(8),
                     LABELS[maj_prob].ljust(8),
-                    label.ljust(8),
+                    label[0].ljust(8),
                     ntpath.basename(file_name[0])))
 
         if verbose:
