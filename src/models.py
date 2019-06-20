@@ -227,7 +227,6 @@ class PatchWiseModel(BaseModel):
         res = []
 
         for index, (image, file_name) in enumerate(data_loader):
-            print("Hey")
             image = image.squeeze()
             if self.args.cuda:
                 image = image.cuda()
@@ -245,7 +244,7 @@ class PatchWiseModel(BaseModel):
 
             sum_prob = 2 - np.argmax(np.sum(np.exp(output.data.cpu().numpy()), axis=0)[::-1])
             max_prob = 2 - np.argmax(np.max(np.exp(output.data.cpu().numpy()), axis=0)[::-1])
-            maj_prob = 2 - np.argmax(np.sum(np.eye(3)[np.array(predicted).reshape(-1)], axis=0)[::-1])
+            maj_prob = 2 - np.argmax(np.sum(np.eye(3)[np.array(predicted.cpu().numpy()).reshape(-1)], axis=0)[::-1])
 
             res.append([sum_prob, max_prob, maj_prob, file_name[0]])
 
