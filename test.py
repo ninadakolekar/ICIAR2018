@@ -16,7 +16,7 @@ if args.testset_path is '':
 
 if args.network == '1':
     pw_model = PatchWiseModel(args, pw_network)
-    pw_model.test(args.testset_path)
+    pw_model.test(args.testset_path,verbose=True)
 
 else:
     im_model = ImageWiseModel(args, iw_network, pw_network)

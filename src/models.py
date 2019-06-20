@@ -227,6 +227,7 @@ class PatchWiseModel(BaseModel):
         res = []
 
         for index, (image, file_name) in enumerate(data_loader):
+            print("Hey")
             image = image.squeeze()
             if self.args.cuda:
                 image = image.cuda()
