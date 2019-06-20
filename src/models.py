@@ -90,9 +90,6 @@ class PatchWiseModel(BaseModel):
 
             for index, (images, labels) in enumerate(self.train_loader):
 
-                if index > 5:
-                    break
-
                 if self.args.cuda:
                     images, labels = images.cuda(), labels.cuda()
 
