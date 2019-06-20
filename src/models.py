@@ -32,7 +32,6 @@ class BaseModel:
 
     def load(self):
         try:
-            print(self.weights)
             if os.path.exists(self.weights):
                 print('Loading "patch-wise" model...')
                 self.network.load_state_dict(torch.load(self.weights))
@@ -46,7 +45,7 @@ class BaseModel:
 
 class PatchWiseModel(BaseModel):
     def __init__(self, args, network):
-        super(PatchWiseModel, self).__init__(args, network, args.checkpoints_path + '/weights_' + network.name() + '.pth')
+        super(PatchWiseModel, self).__init__(args, network, args.checkpoints_path)
 
         # if self.args.dataset_path:
         #     self.train_loader = DataLoader(
