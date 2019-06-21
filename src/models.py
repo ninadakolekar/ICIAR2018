@@ -115,7 +115,7 @@ class PatchWiseModel(BaseModel):
                         100 * correct / total
                     ))
                 
-                    if 100 * correct / total > 40:
+                    if 100 * correct / total > 70:
 
                         self.network.eval()
 
@@ -143,15 +143,12 @@ class PatchWiseModel(BaseModel):
                             with torch.no_grad():
                                 output = self.network(Variable(images))
 
-                            _, predicted = torch.max(output.data, 1)
-                            print(name,"p ",predicted,"l ",LABELS[labels])
                             predicted = LABELS[predicted.cpu().item()]
                             print(name,"p ",predicted,"l ",LABELS[labels])
-                            exit(0)
 
-                            # if --wrong--:
+                            if predicted != LABELS[labels]:
                                 
-                            #     print(f"{name}\t{LABELS[predicted]}\t{LABELS[labels]}\t val")
+                                print(f"{name.split('/')[1]}\t{LABELS[predicted]}\t{LABELS[labels]}\t val")
 
                         for images, name, labels in test_loader:
 
@@ -167,10 +164,9 @@ class PatchWiseModel(BaseModel):
                             print(name,"p ",predicted,"l ",LABELS[labels])
                             exit(0)
 
-                            # if --wrong--:
+                            if predicted != LABELS[labels]:
                                 
-                            #     print(f"{name}\t{LABELS[predicted]}\t{LABELS[labels]}\t test")
-
+                                print(f"{name.split('/')[1]}\t{LABELS[predicted]}\t{LABELS[labels]}\t test")
 
             train_loss /= len(self.train_loader.dataset)
             train_acc = 100 * correct / total
