@@ -115,7 +115,7 @@ class PatchWiseModel(BaseModel):
                         100 * correct / total
                     ))
                 
-                    if 100 * correct / total > 40:
+                    if 100 * correct / total > 75:
 
                         self.network.eval()
 
@@ -137,6 +137,7 @@ class PatchWiseModel(BaseModel):
                                 output = self.network(Variable(images))
 
                             _, predicted = torch.max(output.data, 1)
+                            print(name,"p ",predicted,"l ",LABELS[labels])
                             predicted = LABELS[predicted.cpu().numpy()]
                             print(name,"p ",predicted,"l ",LABELS[labels])
                             exit(0)
