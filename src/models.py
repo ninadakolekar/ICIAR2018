@@ -115,7 +115,7 @@ class PatchWiseModel(BaseModel):
                         100 * correct / total
                     ))
                 
-                    if 100 * correct / total > 69:
+                    if 100 * correct / total > 60:
 
                         self.network.eval()
 
