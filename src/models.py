@@ -145,7 +145,7 @@ class PatchWiseModel(BaseModel):
 
                             _, predicted = torch.max(output.data, 1)
                             print(name,"p ",predicted,"l ",LABELS[labels])
-                            predicted = LABELS[predicted.cpu().numpy()]
+                            predicted = LABELS[predicted.cpu().item()]
                             print(name,"p ",predicted,"l ",LABELS[labels])
                             exit(0)
 
