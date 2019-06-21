@@ -128,7 +128,7 @@ class PatchWiseModel(BaseModel):
             
                         print('\nEvaluating....')
 
-                        for images, labels in test_loader:
+                        for images, name, labels in test_loader:
 
                             if self.args.cuda:
                                 images = images.cuda()
