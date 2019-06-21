@@ -149,7 +149,7 @@ class PatchWiseModel(BaseModel):
 
                             if predicted != LABELS[labels]:
                                 
-                                print(f"{name[0].split('/')[1]}\t{predicted}\t{LABELS[labels]}\t val")
+                                print(f"{name[0].split('/')[-1]}\t{predicted}\t{LABELS[labels]}\t val")
 
                         for images, name, labels in test_loader:
 
@@ -164,7 +164,7 @@ class PatchWiseModel(BaseModel):
 
                             if predicted != LABELS[labels]:
                                 
-                                print(f"{name[0].split('/')[1]}\t{predicted}\t{LABELS[labels]}\t train")
+                                print(f"{name[0].split('/')[-1]}\t{predicted}\t{LABELS[labels]}\t train")
 
             train_loss /= len(self.train_loader.dataset)
             train_acc = 100 * correct / total
