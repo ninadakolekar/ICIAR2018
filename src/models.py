@@ -136,10 +136,10 @@ class PatchWiseModel(BaseModel):
                         with torch.no_grad():
                             output = self.network(Variable(images))
 
-                         _, predicted = torch.max(output.data, 1)
-                         predicted = LABELS[predicted.cpu().numpy()]
-                         print("p ",predicted,"l ",label)
-                         exit(0)
+                        _, predicted = torch.max(output.data, 1)
+                        predicted = LABELS[predicted.cpu().numpy()]
+                        print("p ",predicted,"l ",label)
+                        exit(0)
 
             train_loss /= len(self.train_loader.dataset)
             train_acc = 100 * correct / total
