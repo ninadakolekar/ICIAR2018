@@ -115,18 +115,43 @@ class PatchWiseModel(BaseModel):
                         100 * correct / total
                     ))
                 
-                    if 100 * correct / total > 70:
+                    if 100 * correct / total > 40:
 
                         self.network.eval()
 
-                        test_loader = DataLoader(
+                        val_loader = DataLoader(
                             dataset=PatchWiseDataset(path=self.args.dataset_path + VALIDATION_PATH, stride=self.args.patch_stride),
+                            batch_size=1,
+                            shuffle=False,
+                            num_workers=4
+                        )
+
+                        test_loader = DataLoader(
+                            dataset=PatchWiseDataset(path=self.args.dataset_path + '/test', stride=self.args.patch_stride),
                             batch_size=1,
                             shuffle=False,
                             num_workers=4
                         )
             
                         print('\nEvaluating....')
+
+                        for images, name, labels in val_loader:
+
+                            if self.args.cuda:
+                                images = images.cuda()
+
+                            with torch.no_grad():
+                                output = self.network(Variable(images))
+
+                            _, predicted = torch.max(output.data, 1)
+                            print(name,"p ",predicted,"l ",LABELS[labels])
+                            predicted = LABELS[predicted.cpu().numpy()]
+                            print(name,"p ",predicted,"l ",LABELS[labels])
+                            exit(0)
+
+                            # if --wrong--:
+                                
+                            #     print(f"{name}\t{LABELS[predicted]}\t{LABELS[labels]}\t val")
 
                         for images, name, labels in test_loader:
 
@@ -141,6 +166,11 @@ class PatchWiseModel(BaseModel):
                             predicted = LABELS[predicted.cpu().numpy()]
                             print(name,"p ",predicted,"l ",LABELS[labels])
                             exit(0)
+
+                            # if --wrong--:
+                                
+                            #     print(f"{name}\t{LABELS[predicted]}\t{LABELS[labels]}\t test")
+
 
             train_loss /= len(self.train_loader.dataset)
             train_acc = 100 * correct / total
