@@ -143,12 +143,13 @@ class PatchWiseModel(BaseModel):
                             with torch.no_grad():
                                 output = self.network(Variable(images))
 
+                            _, predicted = torch.max(output.data, 1)
                             predicted = LABELS[predicted.cpu().item()]
-                            print(name,"p ",predicted,"l ",LABELS[labels])
+                            # print(name,"p ",predicted,"l ",LABELS[labels])
 
                             if predicted != LABELS[labels]:
                                 
-                                print(f"{name[0].split('/')[1]}\t{LABELS[predicted]}\t{LABELS[labels]}\t val")
+                                print(f"{name[0].split('/')[1]}\t{predicted}\t{LABELS[labels]}\t val")
 
                         for images, name, labels in test_loader:
 
@@ -159,14 +160,11 @@ class PatchWiseModel(BaseModel):
                                 output = self.network(Variable(images))
 
                             _, predicted = torch.max(output.data, 1)
-                            print(name,"p ",predicted,"l ",LABELS[labels])
-                            predicted = LABELS[int(predicted.cpu().item())]
-                            print(name,"p ",predicted,"l ",LABELS[labels])
-                            exit(0)
+                            predicted = LABELS[predicted.cpu().item()]
 
                             if predicted != LABELS[labels]:
                                 
-                                print(f"{name[0].split('/')[1]}\t{LABELS[predicted]}\t{LABELS[labels]}\t test")
+                                print(f"{name[0].split('/')[1]}\t{predicted}\t{LABELS[labels]}\t train")
 
             train_loss /= len(self.train_loader.dataset)
             train_acc = 100 * correct / total
