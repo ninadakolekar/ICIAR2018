@@ -115,7 +115,7 @@ class PatchWiseModel(BaseModel):
                         100 * correct / total
                     ))
                 
-                    if 100 * correct / total > 70:
+                    if 100 * correct / total > 69:
 
                         self.network.eval()
 
@@ -148,7 +148,7 @@ class PatchWiseModel(BaseModel):
 
                             if predicted != LABELS[labels]:
                                 
-                                print(f"{name.split('/')[1]}\t{LABELS[predicted]}\t{LABELS[labels]}\t val")
+                                print(f"{name[0].split('/')[1]}\t{LABELS[predicted]}\t{LABELS[labels]}\t val")
 
                         for images, name, labels in test_loader:
 
@@ -166,7 +166,7 @@ class PatchWiseModel(BaseModel):
 
                             if predicted != LABELS[labels]:
                                 
-                                print(f"{name.split('/')[1]}\t{LABELS[predicted]}\t{LABELS[labels]}\t test")
+                                print(f"{name[0].split('/')[1]}\t{LABELS[predicted]}\t{LABELS[labels]}\t test")
 
             train_loss /= len(self.train_loader.dataset)
             train_acc = 100 * correct / total
