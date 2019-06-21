@@ -88,7 +88,7 @@ class PatchWiseModel(BaseModel):
             total = 0
             train_loss = 0
 
-            for index, (images, labels) in enumerate(self.train_loader):
+            for index, (images, name, labels) in enumerate(self.train_loader):
 
                 if self.args.cuda:
                     images, labels = images.cuda(), labels.cuda()
@@ -138,7 +138,7 @@ class PatchWiseModel(BaseModel):
 
                         _, predicted = torch.max(output.data, 1)
                         predicted = LABELS[predicted.cpu().numpy()]
-                        print("p ",predicted,"l ",label)
+                        print(name,"p ",predicted,"l ",labels)
                         exit(0)
 
             train_loss /= len(self.train_loader.dataset)

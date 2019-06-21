@@ -92,7 +92,7 @@ class ImageWiseDataset(Dataset):
             for i in range(len(patches)):
                 b[i] = transforms.ToTensor()(patches[i])
 
-            return b, label
+            return b, self.names[im], label
 
     def __len__(self):
         return np.prod(self.shape)
