@@ -115,7 +115,7 @@ class PatchWiseModel(BaseModel):
                         100 * correct / total
                     ))
                 
-                    if index >= 84800 and 100 * correct / total >= 90:
+                    if index * len(images) >= 84800 and 100 * correct / total >= 90:
 
                         self.network.eval()
 
