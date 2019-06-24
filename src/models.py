@@ -264,7 +264,8 @@ class PatchWiseModel(BaseModel):
 
     def output(self, input_tensor):
         self.network.eval()
-        res = self.network.features(Variable(input_tensor, volatile=True))
+        with torch.no_grad():
+            res = self.network.features(Variable(input_tensor))
         return res.squeeze()
 
     def visualize(self, path, channel=0):
@@ -312,11 +313,11 @@ class ImageWiseModel(BaseModel):
 
     def train(self):
         self.network.train()
-        print('Evaluating patch-wise model...')
+        print('ImageWiseModel.train: Evaluating patch-wise model...')
 
         train_loader = self._patch_loader(self.args.dataset_path + TRAIN_PATH, True)
 
-        print('Start training image-wise network: {}\n'.format(time.strftime('%Y/%m/%d %H:%M')))
+        print('ImageWiseModel.train: Start training image-wise network: {}\n'.format(time.strftime('%Y/%m/%d %H:%M')))
 
         optimizer = optim.Adam(self.network.parameters(), lr=self.args.lr, betas=(self.args.beta1, self.args.beta2))
         best = self.validate(verbose=False)
