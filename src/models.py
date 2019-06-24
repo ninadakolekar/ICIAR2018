@@ -166,6 +166,8 @@ class PatchWiseModel(BaseModel):
                                 
                                 print(f"{name[0].split('/')[-1]}\t{predicted}\t{LABELS[labels]}\t test")
 
+                        exit(0)
+
             train_loss /= len(self.train_loader.dataset)
             train_acc = 100 * correct / total
 
