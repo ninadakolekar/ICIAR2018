@@ -88,7 +88,7 @@ class PatchWiseModel(BaseModel):
             total = 0
             train_loss = 0
 
-            for index, (images, labels) in enumerate(self.train_loader):
+            for index, (images, name, labels) in enumerate(self.train_loader):
 
                 if self.args.cuda:
                     images, labels = images.cuda(), labels.cuda()
@@ -114,6 +114,57 @@ class PatchWiseModel(BaseModel):
                         loss.item(),
                         100 * correct / total
                     ))
+                
+                    if index >= 84800 and 100 * correct / total >= 90:
+
+                        self.network.eval()
+
+                        val_loader = DataLoader(
+                            dataset=PatchWiseDataset(path=self.args.dataset_path + VALIDATION_PATH, stride=self.args.patch_stride),
+                            batch_size=1,
+                            shuffle=False,
+                            num_workers=4
+                        )
+
+                        test_loader = DataLoader(
+                            dataset=PatchWiseDataset(path=self.args.dataset_path + '/test', stride=self.args.patch_stride),
+                            batch_size=1,
+                            shuffle=False,
+                            num_workers=4
+                        )
+            
+                        print('\nEvaluating....')
+
+                        for images, name, labels in val_loader:
+
+                            if self.args.cuda:
+                                images = images.cuda()
+
+                            with torch.no_grad():
+                                output = self.network(Variable(images))
+
+                            _, predicted = torch.max(output.data, 1)
+                            predicted = LABELS[predicted.cpu().item()]
+                            # print(name,"p ",predicted,"l ",LABELS[labels])
+
+                            if predicted != LABELS[labels]:
+                                
+                                print(f"{name[0].split('/')[-1]}\t{predicted}\t{LABELS[labels]}\t val")
+
+                        for images, name, labels in test_loader:
+
+                            if self.args.cuda:
+                                images = images.cuda()
+
+                            with torch.no_grad():
+                                output = self.network(Variable(images))
+
+                            _, predicted = torch.max(output.data, 1)
+                            predicted = LABELS[predicted.cpu().item()]
+
+                            if predicted != LABELS[labels]:
+                                
+                                print(f"{name[0].split('/')[-1]}\t{predicted}\t{LABELS[labels]}\t test")
 
             train_loss /= len(self.train_loader.dataset)
             train_acc = 100 * correct / total
