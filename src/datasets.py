@@ -47,7 +47,7 @@ class PatchWiseDataset(Dataset):
                 patch = ImageEnhance.Brightness(patch).enhance(factors[2])
 
             label = self.labels[self.names[im]]
-            return transforms.ToTensor()(patch), self.names[im], label
+            return transforms.ToTensor()(patch), label
 
     def __len__(self):
         return np.prod(self.shape)
