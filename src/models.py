@@ -320,7 +320,7 @@ class ImageWiseModel(BaseModel):
         print('ImageWiseModel.train: Start training image-wise network: {}\n'.format(time.strftime('%Y/%m/%d %H:%M')))
 
         optimizer = optim.Adam(self.network.parameters(), lr=self.args.lr, betas=(self.args.beta1, self.args.beta2))
-        best = self.validate(verbose=False)
+        best = 0
         mean = 0
         epoch = 0
 
@@ -333,8 +333,6 @@ class ImageWiseModel(BaseModel):
 
             correct = 0
             total = 0
-
-            import pdb; pdb.set_trace()
 
             for index, (images, labels) in enumerate(train_loader):
 
