@@ -38,7 +38,7 @@ class BaseModel:
                 print('Loading "patch-wise" model...')
                 self.network.load_state_dict(torch.load(self.weights))
         except:
-            print('Failed to load pre-trained network '+self.network.name())
+            print('Failed to load pre-trained network '+self.network.name()+' from '+self.weights)
 
     def save(self):
         print('Saving model to "{}"'.format(self.weights))
