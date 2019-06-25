@@ -334,10 +334,16 @@ class ImageWiseModel(BaseModel):
             correct = 0
             total = 0
 
+            import pdb; pdb.set_trace()
+
             for index, (images, labels) in enumerate(train_loader):
+
+                pdb.set_trace()
 
                 if self.args.cuda:
                     images, labels = images.cuda(), labels.cuda()
+
+                pdb.set_trace()
 
                 optimizer.zero_grad()
                 output = self.network(Variable(images))
