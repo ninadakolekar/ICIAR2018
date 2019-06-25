@@ -400,13 +400,14 @@ class ImageWiseModel(BaseModel):
             if self.args.cuda:
                 images, labels = images.cuda(), labels.cuda()
 
-            output = self.network(Variable(images, volatile=True))
+            with torch.no_grad():
+                output = self.network(Variable(images))
 
             val_loss += F.nll_loss(output, Variable(labels), reduction='sum').item()
             _, predicted = torch.max(output.data, 1)
             correct += torch.sum(predicted == labels)
 
-            labels_true = np.append(labels_true, labels)
+            labels_true = np.append(labels_true, labels.cpu().numpy())
             labels_pred = np.append(labels_pred, torch.exp(output.data).cpu().numpy(), axis=0)
 
             for label in range(classes):
