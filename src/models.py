@@ -47,7 +47,7 @@ class BaseModel:
 
 class PatchWiseModel(BaseModel):
     def __init__(self, args, network):
-        super(PatchWiseModel, self).__init__(args, network, args.checkpoints_path)
+        super(PatchWiseModel, self).__init__(args, network, os.path.join(args.checkpoints_path,"weights_pw1.pth"))
 
         # self.train_loader = DataLoader(
         #     dataset=PatchWiseDataset(path=self.args.dataset_path + TRAIN_PATH, stride=self.args.patch_stride, rotate=True, flip=True, enhance=True),
@@ -359,6 +359,11 @@ class ImageWiseModel(BaseModel):
                     ))
 
             print('\nEnd of epoch {}, time: {}'.format(epoch, datetime.datetime.now() - stime))
+
+            if (epoch-1)%5 == 0 or epoch == self.args.epochs:
+                print('Saving model (periodic) to "{}"'.format(self.args.checkpoints_path + '/weights_' + self.network.name() + '_epoch'+str(epoch)+'.pth'))
+                torch.save(self.network.state_dict(),self.args.checkpoints_path + '/weights_' + self.network.name() + '_epoch'+str(epoch)+'.pth')
+
             acc = self.validate()
             mean += acc
             if acc > best:
@@ -508,7 +513,7 @@ class ImageWiseModel(BaseModel):
         images_path = '{}/{}_images.npy'.format(self.args.checkpoints_path, self.network.name())
         labels_path = '{}/{}_labels.npy'.format(self.args.checkpoints_path, self.network.name())
 
-        if self.args.debug and augment and os.path.exists(images_path):
+        if self.args.debug and augment and os.path.exists(images_path) and False:
             np_images = np.load(images_path)
             np_labels = np.load(labels_path)
 
