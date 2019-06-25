@@ -338,12 +338,8 @@ class ImageWiseModel(BaseModel):
 
             for index, (images, labels) in enumerate(train_loader):
 
-                pdb.set_trace()
-
                 if self.args.cuda:
                     images, labels = images.cuda(), labels.cuda()
-
-                pdb.set_trace()
 
                 optimizer.zero_grad()
                 output = self.network(Variable(images))
@@ -522,7 +518,7 @@ class ImageWiseModel(BaseModel):
         images_path = '{}/{}_images.npy'.format(self.args.checkpoints_path, self.network.name())
         labels_path = '{}/{}_labels.npy'.format(self.args.checkpoints_path, self.network.name())
 
-        if self.args.debug and augment and os.path.exists(images_path) and False:
+        if self.args.debug and augment and os.path.exists(images_path):
             np_images = np.load(images_path)
             np_labels = np.load(labels_path)
 
