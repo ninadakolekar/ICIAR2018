@@ -326,6 +326,8 @@ class ImageWiseModel(BaseModel):
 
         for epoch in range(1, self.args.epochs + 1):
 
+            print(f"Starting epoch {epoch}...")
+
             self.network.train()
             stime = datetime.datetime.now()
 
