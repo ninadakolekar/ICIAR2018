@@ -46,19 +46,20 @@ class BaseModel:
 
 
 class PatchWiseModel(BaseModel):
-    def __init__(self, args, network):
+    def __init__(self, args, network, train=True):
         super(PatchWiseModel, self).__init__(args, network, os.path.join(args.checkpoints_path,"weights_"+network.name()+".pth"))
 
-        self.train_loader = DataLoader(
-            dataset=PatchWiseDataset(path=self.args.dataset_path + TRAIN_PATH, stride=self.args.patch_stride, rotate=True, flip=True, enhance=True),
-            batch_size=self.args.batch_size,
-            shuffle=True,
-            num_workers=4
-        )
+        if train:
+            self.train_loader = DataLoader(
+                dataset=PatchWiseDataset(path=self.args.dataset_path + TRAIN_PATH, stride=self.args.patch_stride, rotate=True, flip=True, enhance=True),
+                batch_size=self.args.batch_size,
+                shuffle=True,
+                num_workers=4
+            )
 
-        if os.path.exists(os.path.join(args.checkpoints_path,f"logs_{args.tid}.csv")):
-            print(f"Train logs exist")
-            exit(0)
+            if os.path.exists(os.path.join(args.checkpoints_path,f"logs_{args.tid}.csv")):
+                print(f"Train logs exist")
+                exit(0)
 
         self.id = args.tid
 
@@ -308,7 +309,7 @@ class ImageWiseModel(BaseModel):
     def __init__(self, args, image_wise_network, patch_wise_network):
         super(ImageWiseModel, self).__init__(args, image_wise_network, args.checkpoints_path + '/weights_' + image_wise_network.name() + '.pth')
 
-        self.patch_wise_model = PatchWiseModel(args, patch_wise_network)
+        self.patch_wise_model = PatchWiseModel(args, patch_wise_network,train=False)
         self._test_loader = None
 
     def train(self):
