@@ -108,8 +108,6 @@ class TestDataset(Dataset):
         else:
             names = [path]
 
-        print(len(names))
-
         self.path = path
         self.stride = stride
         self.augment = augment
