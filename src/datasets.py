@@ -105,7 +105,7 @@ class TestDataset(Dataset):
 
         if os.path.isdir(path):
             # names = [name for name in glob.glob(path + '/'+'*.JPG')]
-            names = [name for name in Path(path).glob('**/*.JPG')]
+            names = [str(name) for name in Path(path).glob('**/*.JPG')]
             # index = [LABELS[index] for index in range(len(LABELS)) for name in glob.glob(path + '/' + LABELS[index] + '/*.JPG')]
         else:
             names = [path]
