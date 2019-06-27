@@ -491,7 +491,7 @@ class ImageWiseModel(BaseModel):
             output = self.network(patches)
             _, predicted = torch.max(output.data, 1)
 
-            output = output.cpu().numpy()
+            output = output.detach().numpy()
             predicted = predicted.cpu().numpy()
 
             # maj_prop: majority voting: create a one-hot vector of predicted values: (12, 4),
