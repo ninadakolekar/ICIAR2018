@@ -108,6 +108,8 @@ class TestDataset(Dataset):
         else:
             names = [path]
 
+        print(f"{len(names)} images loaded")
+
         self.path = path
         self.stride = stride
         self.augment = augment
