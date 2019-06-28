@@ -40,8 +40,8 @@ def aug(path,outdir,rotation=0,flip=0,enhance=0):
 
 if __name__ == "__main__":
     
-    path = sys.argv[0]
-    outdir = sys.argv[1]
+    path = sys.argv[1]
+    outdir = sys.argv[2]
     print("path:"+path)
     print("outdir:"+outdir)
     aug(path,outdir,enhance=1)
