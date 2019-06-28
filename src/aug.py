@@ -2,7 +2,7 @@ import os
 import sys
 import numpy as np
 from PIL import Image, ImageEnhance
-from .patch_extractor import PatchExtractor
+from patch_extractor import PatchExtractor
 
 PATCH_SIZE = 512
 stride = 256
