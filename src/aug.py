@@ -42,4 +42,6 @@ if __name__ == "__main__":
     
     path = sys.argv[0]
     outdir = sys.argv[1]
+    print("path:"+path)
+    print("outdir:"+outdir)
     aug(path,outdir,enhance=1)
