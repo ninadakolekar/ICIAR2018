@@ -37,13 +37,14 @@ class PatchWiseDataset(Dataset):
         self.stride = stride
         self.labels = labels
         self.names = list(sorted(labels.keys()))
+        # (files, x_patches, y_patches, rotations, flip, enhance)
         self.shape = (
             len(labels),
             wp,
             hp,
             (4 if rotate else 1),
             (2 if flip else 1),
-            (2 if enhance else 1))  # (files, x_patches, y_patches, rotations, flip, enhance)
+            (2 if enhance else 1))
         self.augment_size = np.prod(self.shape) / len(labels)
 
     def __getitem__(self, index):
@@ -96,11 +97,12 @@ class ImageWiseDataset(Dataset):
         self.stride = stride
         self.labels = labels
         self.names = list(sorted(labels.keys()))
+        # (files, x_patches, y_patches, rotations, flip, enhance)
         self.shape = (
             len(labels),
             (4 if rotate else 1),
             (2 if flip else 1),
-            (2 if enhance else 1))  # (files, x_patches, y_patches, rotations, flip, enhance)
+            (2 if enhance else 1))
         self.augment_size = np.prod(self.shape) / len(labels)
 
     def __getitem__(self, index):
@@ -141,9 +143,7 @@ class TestDataset(Dataset):
         super().__init__()
 
         if os.path.isdir(path):
-            # names = [name for name in glob.glob(path + '/'+'*.JPG')]
             names = [str(name) for name in Path(path).glob('**/*.JPG')]
-            # index = [LABELS[index] for index in range(len(LABELS)) for name in glob.glob(path + '/' + LABELS[index] + '/*.JPG')]
         else:
             names = [path]
 
