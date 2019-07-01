@@ -1,7 +1,7 @@
+from src import *
 import matplotlib
 matplotlib.use('Agg')
 
-from src import *
 
 args = ModelOptions().parse()
 
@@ -15,11 +15,18 @@ iw_network = ImageWiseNetwork(args.channels)
 if args.testset_path is '':
     import tkinter.filedialog as fdialog
 
-    args.testset_path = fdialog.askopenfilename(initialdir=r"./dataset/test", title="choose your file", filetypes=(("JPG files", "*.JPG"), ("JPEG files", "*.JPEG")))
+    args.testset_path = fdialog.askopenfilename(
+        initialdir=r"./dataset/test",
+        title="choose your file",
+        filetypes=(
+            ("JPG files",
+             "*.JPG"),
+            ("JPEG files",
+             "*.JPEG")))
 
 if args.network == '1':
     pw_model = PatchWiseModel(args, pw_network)
-    pw_model.test(args.testset_path,verbose=True)
+    pw_model.test(args.testset_path, verbose=True)
 
 else:
     im_model = ImageWiseModel(args, iw_network, pw_network)

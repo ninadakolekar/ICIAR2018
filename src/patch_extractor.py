@@ -15,7 +15,8 @@ class PatchExtractor:
         :returns: A list of :py:class:`~PIL.Image.Image` objects.
         """
         wp, hp = self.shape()
-        return [self.extract_patch((w, h)) for h in range(hp) for w in range(wp)]
+        return [self.extract_patch((w, h))
+                for h in range(hp) for w in range(wp)]
 
     def extract_patch(self, patch):
         """
@@ -35,5 +36,3 @@ class PatchExtractor:
         wp = int((self.img.width - self.size) / self.stride + 1)
         hp = int((self.img.height - self.size) / self.stride + 1)
         return wp, hp
-
-

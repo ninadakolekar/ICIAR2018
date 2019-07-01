@@ -38,7 +38,7 @@ class BaseModel:
             if os.path.exists(self.weights):
                 print('Loading "patch-wise" model...')
                 self.network.load_state_dict(torch.load(self.weights))
-        except:
+        except BaseException:
             print('Failed to load pre-trained network')
 
     def save(self):
@@ -48,16 +48,32 @@ class BaseModel:
 
 class PatchWiseModel(BaseModel):
     def __init__(self, args, network):
-        super(PatchWiseModel, self).__init__(args, network, args.checkpoints_path+'/weights_'+network.name()+'.pth')
+        super(
+            PatchWiseModel,
+            self).__init__(
+            args,
+            network,
+            args.checkpoints_path +
+            '/weights_' +
+            network.name() +
+            '.pth')
 
         self.train_loader = DataLoader(
-            dataset=PatchWiseDataset(path=self.args.dataset_path + TRAIN_PATH, stride=self.args.patch_stride, rotate=True, flip=True, enhance=True),
+            dataset=PatchWiseDataset(
+                path=self.args.dataset_path +
+                TRAIN_PATH,
+                stride=self.args.patch_stride,
+                rotate=True,
+                flip=True,
+                enhance=True),
             batch_size=self.args.batch_size,
             shuffle=True,
-            num_workers=4
-        )
+            num_workers=4)
 
-        if os.path.exists(os.path.join(args.checkpoints_path,f"logs_{args.tid}.csv")):
+        if os.path.exists(
+            os.path.join(
+                args.checkpoints_path,
+                f"logs_{args.tid}.csv")):
             print(f"Train logs exist")
             exit(0)
 
@@ -65,13 +81,25 @@ class PatchWiseModel(BaseModel):
 
     def train(self):
 
-        logs = pd.DataFrame(columns=['epoch', 'train_loss', 'train_acc', 'val_loss', 'val_acc'])
+        logs = pd.DataFrame(
+            columns=[
+                'epoch',
+                'train_loss',
+                'train_acc',
+                'val_loss',
+                'val_acc'])
 
         self.network.train()
         print('Start training patch-wise network: {}\n'.format(time.strftime('%Y/%m/%d %H:%M')))
-        
-        optimizer = optim.Adam(self.network.parameters(), lr=self.args.lr, betas=(self.args.beta1, self.args.beta2))
-        scheduler = optim.lr_scheduler.StepLR(optimizer, step_size=20, gamma=0.1)
+
+        optimizer = optim.Adam(
+            self.network.parameters(),
+            lr=self.args.lr,
+            betas=(
+                self.args.beta1,
+                self.args.beta2))
+        scheduler = optim.lr_scheduler.StepLR(
+            optimizer, step_size=20, gamma=0.1)
         best_val_acc = 0
         mean_val_acc = 0
         best_epoch = 0
@@ -114,25 +142,29 @@ class PatchWiseModel(BaseModel):
                         loss.item(),
                         100 * correct / total
                     ))
-                
-                    if index * len(images) >= 84800 and 100 * correct / total >= 90:
+
+                    if index * len(images) >= 84800 and 100 * \
+                            correct / total >= 90:
 
                         self.network.eval()
 
                         val_loader = DataLoader(
-                            dataset=PatchWiseDataset(path=self.args.dataset_path + VALIDATION_PATH, stride=self.args.patch_stride),
+                            dataset=PatchWiseDataset(
+                                path=self.args.dataset_path +
+                                VALIDATION_PATH,
+                                stride=self.args.patch_stride),
                             batch_size=1,
                             shuffle=False,
-                            num_workers=4
-                        )
+                            num_workers=4)
 
                         test_loader = DataLoader(
-                            dataset=PatchWiseDataset(path=self.args.dataset_path + '/test', stride=self.args.patch_stride),
+                            dataset=PatchWiseDataset(
+                                path=self.args.dataset_path + '/test',
+                                stride=self.args.patch_stride),
                             batch_size=1,
                             shuffle=False,
-                            num_workers=4
-                        )
-            
+                            num_workers=4)
+
                         print('\nEvaluating....')
 
                         for images, name, labels in val_loader:
@@ -148,8 +180,9 @@ class PatchWiseModel(BaseModel):
                             # print(name,"p ",predicted,"l ",LABELS[labels])
 
                             if predicted != LABELS[labels]:
-                                
-                                print(f"{name[0].split('/')[-1]}\t{predicted}\t{LABELS[labels]}\t val")
+
+                                print(
+                                    f"{name[0].split('/')[-1]}\t{predicted}\t{LABELS[labels]}\t val")
 
                         for images, name, labels in test_loader:
 
@@ -163,34 +196,60 @@ class PatchWiseModel(BaseModel):
                             predicted = LABELS[predicted.cpu().item()]
 
                             if predicted != LABELS[labels]:
-                                
-                                print(f"{name[0].split('/')[-1]}\t{predicted}\t{LABELS[labels]}\t test")
+
+                                print(
+                                    f"{name[0].split('/')[-1]}\t{predicted}\t{LABELS[labels]}\t test")
 
                         exit(0)
 
             train_loss /= len(self.train_loader.dataset)
             train_acc = 100 * correct / total
 
-            val_loss,val_acc = self.validate(verbose=False)
+            val_loss, val_acc = self.validate(verbose=False)
 
-            if (epoch-1)%5 == 0 or epoch == self.args.epochs:
-                print('Saving model to "{}"'.format(self.args.checkpoints_path + '/weights_' + self.network.name() + '_epoch'+str(epoch)+'.pth'))
-                torch.save(self.network.state_dict(),self.args.checkpoints_path + '/weights_' + self.network.name() + '_epoch'+str(epoch)+'.pth')
+            if (epoch - 1) % 5 == 0 or epoch == self.args.epochs:
+                print(
+                    'Saving model to "{}"'.format(
+                        self.args.checkpoints_path +
+                        '/weights_' +
+                        self.network.name() +
+                        '_epoch' +
+                        str(epoch) +
+                        '.pth'))
+                torch.save(
+                    self.network.state_dict(),
+                    self.args.checkpoints_path +
+                    '/weights_' +
+                    self.network.name() +
+                    '_epoch' +
+                    str(epoch) +
+                    '.pth')
 
-            print('\nEnd of epoch {}, time: {}, val_acc: {}'.format(epoch, datetime.datetime.now() - stime,val_acc))
+            print('\nEnd of epoch {}, time: {}, val_acc: {}'.format(
+                epoch, datetime.datetime.now() - stime, val_acc))
 
             mean_val_acc += val_acc
 
             if val_acc > best_val_acc:
                 best_epoch = epoch
                 best_val_acc = val_acc
-                best_cm = confusion_matrix(labels.cpu().numpy(), predicted.cpu().numpy())
+                best_cm = confusion_matrix(
+                    labels.cpu().numpy(), predicted.cpu().numpy())
                 self.save()
 
-            logs.loc[epoch] = [epoch,train_loss,train_acc,val_loss,val_acc]
-            logs.to_csv(os.path.join(self.args.checkpoints_path,f"logs_{self.id}.csv"),index=False)
+            logs.loc[epoch] = [epoch, train_loss, train_acc, val_loss, val_acc]
+            logs.to_csv(
+                os.path.join(
+                    self.args.checkpoints_path,
+                    f"logs_{self.id}.csv"),
+                index=False)
 
-        print('\nEnd of training, best accuracy: {}, best_epoch: {},mean accuracy: {}\n'.format(best_val_acc,best_epoch, mean_val_acc // epoch))
+        print(
+            '\nEnd of training, best accuracy: {}, best_epoch: {},mean accuracy: {}\n'.format(
+                best_val_acc,
+                best_epoch,
+                mean_val_acc //
+                epoch))
 
         # plt.figure(figsize=(5,5))
         # sns.heatmap(best_cm, xticklabels=LABELS, yticklabels=LABELS, annot=True, fmt="d");
@@ -215,11 +274,13 @@ class PatchWiseModel(BaseModel):
         f1 = [0] * classes
 
         test_loader = DataLoader(
-            dataset=PatchWiseDataset(path=self.args.dataset_path + VALIDATION_PATH, stride=self.args.patch_stride),
+            dataset=PatchWiseDataset(
+                path=self.args.dataset_path +
+                VALIDATION_PATH,
+                stride=self.args.patch_stride),
             batch_size=self.args.batch_size,
             shuffle=False,
-            num_workers=4
-        )
+            num_workers=4)
         if verbose:
             print('\nEvaluating....')
 
@@ -231,7 +292,9 @@ class PatchWiseModel(BaseModel):
             with torch.no_grad():
                 output = self.network(Variable(images))
 
-            test_loss += F.nll_loss(output, Variable(labels), reduction='sum').item()
+            test_loss += F.nll_loss(output,
+                                    Variable(labels),
+                                    reduction='sum').item()
             _, predicted = torch.max(output.data, 1)
             correct += torch.sum(predicted == labels)
 
@@ -245,7 +308,8 @@ class PatchWiseModel(BaseModel):
         for label in range(classes):
             precision[label] += (tp[label] / (tpfp[label] + 1e-8))
             recall[label] += (tp[label] / (tpfn[label] + 1e-8))
-            f1[label] = 2 * precision[label] * recall[label] / (precision[label] + recall[label] + 1e-8)
+            f1[label] = 2 * precision[label] * recall[label] / \
+                (precision[label] + recall[label] + 1e-8)
 
         test_loss /= len(test_loader.dataset)
         test_acc = 100. * correct / len(test_loader.dataset)
@@ -260,15 +324,11 @@ class PatchWiseModel(BaseModel):
 
             for label in range(classes):
                 print('{}:  \t Precision: {:.2f},  Recall: {:.2f},  F1: {:.2f}'.format(
-                    LABELS[label],
-                    precision[label],
-                    recall[label],
-                    f1[label]
-                ))
+                    LABELS[label], precision[label], recall[label], f1[label]))
 
             print('')
 
-        return test_loss,test_acc
+        return test_loss, test_acc
 
     def test(self, path, verbose=True):
         self.network.eval()
@@ -295,11 +355,16 @@ class PatchWiseModel(BaseModel):
             # output data shape is 12x4
             # sum_prop: sum of probabilities among y axis: (1, 4), reverse, and take the index  of the largest value
             # max_prop: max of probabilities among y axis: (1, 4), reverse, and take the index  of the largest value
-            # maj_prop: majority voting: create a one-hot vector of predicted values: (12, 4), sum among y axis: (1, 4), reverse, and take the index  of the largest value
+            # maj_prop: majority voting: create a one-hot vector of predicted
+            # values: (12, 4), sum among y axis: (1, 4), reverse, and take the
+            # index  of the largest value
 
-            sum_prob = 2 - np.argmax(np.sum(np.exp(output.data.cpu().numpy()), axis=0)[::-1])
-            max_prob = 2 - np.argmax(np.max(np.exp(output.data.cpu().numpy()), axis=0)[::-1])
-            maj_prob = 2 - np.argmax(np.sum(np.eye(3)[np.array(predicted.cpu().numpy()).reshape(-1)], axis=0)[::-1])
+            sum_prob = 2 - \
+                np.argmax(np.sum(np.exp(output.data.cpu().numpy()), axis=0)[::-1])
+            max_prob = 2 - \
+                np.argmax(np.max(np.exp(output.data.cpu().numpy()), axis=0)[::-1])
+            maj_prob = 2 - \
+                np.argmax(np.sum(np.eye(3)[np.array(predicted.cpu().numpy()).reshape(-1)], axis=0)[::-1])
 
             res.append([sum_prob, max_prob, maj_prob, file_name[0]])
             if verbose:
@@ -312,7 +377,10 @@ class PatchWiseModel(BaseModel):
                     ntpath.basename(file_name[0])))
 
         if verbose:
-            print('\nInference time: {}\n'.format(datetime.datetime.now() - stime))
+            print(
+                '\nInference time: {}\n'.format(
+                    datetime.datetime.now() -
+                    stime))
 
         return res
 
@@ -340,7 +408,8 @@ class PatchWiseModel(BaseModel):
             for i in range(12):
                 row = i // 4
                 col = i % 4
-                map[row * 64:(row + 1) * 64, col * 64:(col + 1) * 64] = output[i]
+                map[row * 64:(row + 1) * 64,
+                    col * 64:(col + 1) * 64] = output[i]
 
             if len(map.shape) > 2:
                 map = map[channel]
@@ -359,7 +428,15 @@ class PatchWiseModel(BaseModel):
 
 class ImageWiseModel(BaseModel):
     def __init__(self, args, image_wise_network, patch_wise_network):
-        super(ImageWiseModel, self).__init__(args, image_wise_network, args.checkpoints_path + '/weights_' + image_wise_network.name() + '.pth')
+        super(
+            ImageWiseModel,
+            self).__init__(
+            args,
+            image_wise_network,
+            args.checkpoints_path +
+            '/weights_' +
+            image_wise_network.name() +
+            '.pth')
 
         self.patch_wise_model = PatchWiseModel(args, patch_wise_network)
         self._test_loader = None
@@ -368,11 +445,17 @@ class ImageWiseModel(BaseModel):
         self.network.train()
         print('Evaluating patch-wise model...')
 
-        train_loader = self._patch_loader(self.args.dataset_path + TRAIN_PATH, True)
+        train_loader = self._patch_loader(
+            self.args.dataset_path + TRAIN_PATH, True)
 
         print('Start training image-wise network: {}\n'.format(time.strftime('%Y/%m/%d %H:%M')))
 
-        optimizer = optim.Adam(self.network.parameters(), lr=self.args.lr, betas=(self.args.beta1, self.args.beta2))
+        optimizer = optim.Adam(
+            self.network.parameters(),
+            lr=self.args.lr,
+            betas=(
+                self.args.beta1,
+                self.args.beta2))
         best = self.validate(verbose=False)
         mean = 0
         epoch = 0
@@ -411,20 +494,26 @@ class ImageWiseModel(BaseModel):
                         100 * correct / total
                     ))
 
-            print('\nEnd of epoch {}, time: {}'.format(epoch, datetime.datetime.now() - stime))
+            print('\nEnd of epoch {}, time: {}'.format(
+                epoch, datetime.datetime.now() - stime))
             acc = self.validate()
             mean += acc
             if acc > best:
                 best = acc
                 self.save()
 
-        print('\nEnd of training, best accuracy: {}, mean accuracy: {}\n'.format(best, mean // epoch))
+        print(
+            '\nEnd of training, best accuracy: {}, mean accuracy: {}\n'.format(
+                best,
+                mean //
+                epoch))
 
     def validate(self, verbose=True, roc=False):
         self.network.eval()
 
         if self._test_loader is None:
-            self._test_loader = self._patch_loader(self.args.dataset_path + VALIDATION_PATH, False)
+            self._test_loader = self._patch_loader(
+                self.args.dataset_path + VALIDATION_PATH, False)
 
         val_loss = 0
         correct = 0
@@ -450,12 +539,15 @@ class ImageWiseModel(BaseModel):
 
             output = self.network(Variable(images, volatile=True))
 
-            val_loss += F.nll_loss(output, Variable(labels), reduction='sum').item()
+            val_loss += F.nll_loss(output, Variable(labels),
+                                   reduction='sum').item()
             _, predicted = torch.max(output.data, 1)
             correct += torch.sum(predicted == labels)
 
             labels_true = np.append(labels_true, labels)
-            labels_pred = np.append(labels_pred, torch.exp(output.data).cpu().numpy(), axis=0)
+            labels_pred = np.append(
+                labels_pred, torch.exp(
+                    output.data).cpu().numpy(), axis=0)
 
             for label in range(classes):
                 t_labels = labels == label
@@ -467,7 +559,8 @@ class ImageWiseModel(BaseModel):
         for label in range(classes):
             precision[label] += (tp[label] / (tpfp[label] + 1e-8))
             recall[label] += (tp[label] / (tpfn[label] + 1e-8))
-            f1[label] = 2 * precision[label] * recall[label] / (precision[label] + recall[label] + 1e-8)
+            f1[label] = 2 * precision[label] * recall[label] / \
+                (precision[label] + recall[label] + 1e-8)
 
         val_loss /= len(self._test_loader.dataset)
         acc = 100. * correct / len(self._test_loader.dataset)
@@ -475,9 +568,12 @@ class ImageWiseModel(BaseModel):
         if roc == 1:
             labels_true = label_binarize(labels_true, classes=range(classes))
             for lbl in range(classes):
-                fpr, tpr, _ = roc_curve(labels_true[:, lbl], labels_pred[:, lbl])
+                fpr, tpr, _ = roc_curve(
+                    labels_true[:, lbl], labels_pred[:, lbl])
                 roc_auc = auc(fpr, tpr)
-                plt.plot(fpr, tpr, lw=2, label='{} (AUC: {:.1f})'.format(LABELS[lbl], roc_auc * 100))
+                plt.plot(
+                    fpr, tpr, lw=2, label='{} (AUC: {:.1f})'.format(
+                        LABELS[lbl], roc_auc * 100))
 
             plt.xlim([0, 1])
             plt.ylim([0, 1.05])
@@ -498,11 +594,7 @@ class ImageWiseModel(BaseModel):
 
             for label in range(classes):
                 print('{}:  \t Precision: {:.2f},  Recall: {:.2f},  F1: {:.2f}'.format(
-                    LABELS[label],
-                    precision[label],
-                    recall[label],
-                    f1[label]
-                ))
+                    LABELS[label], precision[label], recall[label], f1[label]))
 
             print('')
 
@@ -536,11 +628,14 @@ class ImageWiseModel(BaseModel):
             _, predicted = torch.max(output.data, 1)
 
             # maj_prop: majority voting: create a one-hot vector of predicted values: (12, 4),
-            # sum among y axis: (1, 4), reverse, and take the index  of the largest value
+            # sum among y axis: (1, 4), reverse, and take the index  of the
+            # largest value
 
-            maj_prob = 2 - np.argmax(np.sum(np.eye(3)[np.array(predicted).reshape(-1)], axis=0)[::-1])
+            maj_prob = 2 - \
+                np.argmax(np.sum(np.eye(3)[np.array(predicted).reshape(-1)], axis=0)[::-1])
 
-            confidence = np.sum(np.array(predicted) == maj_prob) / n_bins if ensemble else torch.max(torch.exp(output.data))
+            confidence = np.sum(np.array(predicted) == maj_prob) / \
+                n_bins if ensemble else torch.max(torch.exp(output.data))
             confidence = np.round(confidence * 100, 2)
 
             res.append([maj_prob, confidence, file_name[0]])
@@ -553,13 +648,18 @@ class ImageWiseModel(BaseModel):
                     ntpath.basename(file_name[0])))
 
         if verbose:
-            print('\nInference time: {}\n'.format(datetime.datetime.now() - stime))
+            print(
+                '\nInference time: {}\n'.format(
+                    datetime.datetime.now() -
+                    stime))
 
         return res
 
     def _patch_loader(self, path, augment):
-        images_path = '{}/{}_images.npy'.format(self.args.checkpoints_path, self.network.name())
-        labels_path = '{}/{}_labels.npy'.format(self.args.checkpoints_path, self.network.name())
+        images_path = '{}/{}_images.npy'.format(
+            self.args.checkpoints_path, self.network.name())
+        labels_path = '{}/{}_labels.npy'.format(
+            self.args.checkpoints_path, self.network.name())
 
         if self.args.debug and augment and os.path.exists(images_path):
             np_images = np.load(images_path)
@@ -574,20 +674,26 @@ class ImageWiseModel(BaseModel):
                 enhance=augment)
 
             bsize = 8
-            output_loader = DataLoader(dataset=dataset, batch_size=bsize, shuffle=True, num_workers=4)
+            output_loader = DataLoader(
+                dataset=dataset,
+                batch_size=bsize,
+                shuffle=True,
+                num_workers=4)
             output_images = []
             output_labels = []
 
             for index, (images, labels) in enumerate(output_loader):
                 if index > 0 and index % 10 == 0:
-                    print('{} images loaded'.format(int((index * bsize) / dataset.augment_size)))
+                    print('{} images loaded'.format(
+                        int((index * bsize) / dataset.augment_size)))
 
                 if self.args.cuda:
                     images = images.cuda()
 
                 bsize = images.shape[0]
 
-                res = self.patch_wise_model.output(images.view((-1, 3, 512, 512)))
+                res = self.patch_wise_model.output(
+                    images.view((-1, 3, 512, 512)))
                 res = res.view((bsize, -1, 64, 64)).data.cpu().numpy()
 
                 for i in range(bsize):
@@ -601,7 +707,8 @@ class ImageWiseModel(BaseModel):
                 np.save(images_path, np_images)
                 np.save(labels_path, np_labels)
 
-        images, labels = torch.from_numpy(np_images), torch.from_numpy(np_labels).squeeze()
+        images, labels = torch.from_numpy(
+            np_images), torch.from_numpy(np_labels).squeeze()
 
         return DataLoader(
             dataset=TensorDataset(images, labels),

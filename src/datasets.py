@@ -8,31 +8,51 @@ from torch.utils.data import Dataset
 from torchvision.transforms import transforms
 from .patch_extractor import PatchExtractor
 
-LABELS = ['grape','round','stellate']
+LABELS = ['grape', 'round', 'stellate']
 IMAGE_SIZE = (2048, 1536)
 PATCH_SIZE = 512
 
 
 class PatchWiseDataset(Dataset):
-    def __init__(self, path, stride=PATCH_SIZE, rotate=False, flip=False, enhance=False):
+    def __init__(
+            self,
+            path,
+            stride=PATCH_SIZE,
+            rotate=False,
+            flip=False,
+            enhance=False):
         super().__init__()
 
         wp = int((IMAGE_SIZE[0] - PATCH_SIZE) / stride + 1)
         hp = int((IMAGE_SIZE[1] - PATCH_SIZE) / stride + 1)
-        labels = {name: index for index in range(len(LABELS)) for name in glob.glob(path + '/' + LABELS[index] + '/*.JPG')}
+        labels = {
+            name: index for index in range(
+                len(LABELS)) for name in glob.glob(
+                path +
+                '/' +
+                LABELS[index] +
+                '/*.JPG')}
 
         self.path = path
         self.stride = stride
         self.labels = labels
         self.names = list(sorted(labels.keys()))
-        self.shape = (len(labels), wp, hp, (4 if rotate else 1), (2 if flip else 1), (2 if enhance else 1))  # (files, x_patches, y_patches, rotations, flip, enhance)
+        self.shape = (
+            len(labels),
+            wp,
+            hp,
+            (4 if rotate else 1),
+            (2 if flip else 1),
+            (2 if enhance else 1))  # (files, x_patches, y_patches, rotations, flip, enhance)
         self.augment_size = np.prod(self.shape) / len(labels)
 
     def __getitem__(self, index):
-        im, xpatch, ypatch, rotation, flip, enhance = np.unravel_index(index, self.shape)
+        im, xpatch, ypatch, rotation, flip, enhance = np.unravel_index(
+            index, self.shape)
 
         with Image.open(self.names[im]) as img:
-            extractor = PatchExtractor(img=img, patch_size=PATCH_SIZE, stride=self.stride)
+            extractor = PatchExtractor(
+                img=img, patch_size=PATCH_SIZE, stride=self.stride)
             patch = extractor.extract_patch((xpatch, ypatch))
 
             if rotation != 0:
@@ -55,16 +75,32 @@ class PatchWiseDataset(Dataset):
 
 
 class ImageWiseDataset(Dataset):
-    def __init__(self, path, stride=PATCH_SIZE, rotate=False, flip=False, enhance=False):
+    def __init__(
+            self,
+            path,
+            stride=PATCH_SIZE,
+            rotate=False,
+            flip=False,
+            enhance=False):
         super().__init__()
 
-        labels = {name: index for index in range(len(LABELS)) for name in glob.glob(path + '/' + LABELS[index] + '/*.JPG')}
+        labels = {
+            name: index for index in range(
+                len(LABELS)) for name in glob.glob(
+                path +
+                '/' +
+                LABELS[index] +
+                '/*.JPG')}
 
         self.path = path
         self.stride = stride
         self.labels = labels
         self.names = list(sorted(labels.keys()))
-        self.shape = (len(labels), (4 if rotate else 1), (2 if flip else 1), (2 if enhance else 1))  # (files, x_patches, y_patches, rotations, flip, enhance)
+        self.shape = (
+            len(labels),
+            (4 if rotate else 1),
+            (2 if flip else 1),
+            (2 if enhance else 1))  # (files, x_patches, y_patches, rotations, flip, enhance)
         self.augment_size = np.prod(self.shape) / len(labels)
 
     def __getitem__(self, index):
@@ -84,7 +120,8 @@ class ImageWiseDataset(Dataset):
                 img = ImageEnhance.Contrast(img).enhance(factors[1])
                 img = ImageEnhance.Brightness(img).enhance(factors[2])
 
-            extractor = PatchExtractor(img=img, patch_size=PATCH_SIZE, stride=self.stride)
+            extractor = PatchExtractor(
+                img=img, patch_size=PATCH_SIZE, stride=self.stride)
             patches = extractor.extract_patches()
 
             label = self.labels[self.names[im]]
@@ -122,8 +159,15 @@ class TestDataset(Dataset):
         with Image.open(file) as img:
 
             bins = 8 if self.augment else 1
-            extractor = PatchExtractor(img=img, patch_size=PATCH_SIZE, stride=self.stride)
-            b = torch.zeros((bins, extractor.shape()[0] * extractor.shape()[1], 3, PATCH_SIZE, PATCH_SIZE))
+            extractor = PatchExtractor(
+                img=img, patch_size=PATCH_SIZE, stride=self.stride)
+            b = torch.zeros(
+                (bins,
+                 extractor.shape()[0] *
+                 extractor.shape()[1],
+                 3,
+                 PATCH_SIZE,
+                 PATCH_SIZE))
 
             for k in range(bins):
 
@@ -133,7 +177,8 @@ class TestDataset(Dataset):
                 if k // 4 != 0:
                     img = img.transpose(Image.FLIP_LEFT_RIGHT)
 
-                extractor = PatchExtractor(img=img, patch_size=PATCH_SIZE, stride=self.stride)
+                extractor = PatchExtractor(
+                    img=img, patch_size=PATCH_SIZE, stride=self.stride)
                 patches = extractor.extract_patches()
 
                 for i in range(len(patches)):
