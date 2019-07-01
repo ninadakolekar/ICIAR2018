@@ -104,7 +104,7 @@ class ModelOptions:
             help='number of channels created by the patch-wise network that feeds into the image-wise network (default: 1)')
         parser.add_argument('--debug', type=int, default=0,
                             help='debugging (default: 0)')
-        parser.add_argument('--tid', type=str, required=True)
+        parser.add_argument('--tid', type=str, required=False)
         self._parser = parser
 
     def parse(self):
