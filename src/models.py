@@ -541,6 +541,8 @@ class ImageWiseModel(BaseModel):
         val_loss /= len(self._test_loader.dataset)
         acc = 100. * correct / len(self._test_loader.dataset)
 
+        print(f"Accuracy: {acc}")
+
         if roc == 1:
             labels_true = label_binarize(labels_true, classes=range(classes))
             for lbl in range(classes):
