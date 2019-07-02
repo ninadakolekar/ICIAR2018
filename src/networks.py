@@ -29,7 +29,7 @@ class BaseNetwork(nn.Module):
 
 
 class PatchWiseNetwork(BaseNetwork):
-    def __init__(self, channels=1):
+    def __init__(self, channels=1,init=True):
         super(PatchWiseNetwork, self).__init__('pw' + str(channels), channels)
 
         self.features = nn.Sequential(
@@ -171,7 +171,8 @@ class PatchWiseNetwork(BaseNetwork):
             nn.Linear(channels * 64 * 64, 3),
         )
 
-        self.initialize_weights()
+        if init:
+            self.initialize_weights()
 
     def forward(self, x):
         x = self.features(x)
@@ -182,7 +183,7 @@ class PatchWiseNetwork(BaseNetwork):
 
 
 class ImageWiseNetwork(BaseNetwork):
-    def __init__(self, channels=1):
+    def __init__(self, channels=1,init=True):
         super(ImageWiseNetwork, self).__init__('iw' + str(channels), channels)
 
         self.features = nn.Sequential(
@@ -260,7 +261,8 @@ class ImageWiseNetwork(BaseNetwork):
             nn.Linear(64, 3),
         )
 
-        self.initialize_weights()
+        if init:
+            self.initialize_weights()
 
     def forward(self, x):
         x = self.features(x)

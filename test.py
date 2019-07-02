@@ -9,20 +9,8 @@ torch.manual_seed(args.seed)
 if args.cuda:
     torch.cuda.manual_seed(args.seed)
 
-pw_network = PatchWiseNetwork(args.channels)
-iw_network = ImageWiseNetwork(args.channels)
-
-if args.testset_path is '':
-    import tkinter.filedialog as fdialog
-
-    args.testset_path = fdialog.askopenfilename(
-        initialdir=r"./dataset/test",
-        title="choose your file",
-        filetypes=(
-            ("JPG files",
-             "*.JPG"),
-            ("JPEG files",
-             "*.JPEG")))
+pw_network = PatchWiseNetwork(args.channels,init=False)
+iw_network = ImageWiseNetwork(args.channels,init=False)
 
 if args.network == '1':
     pw_model = PatchWiseModel(args, pw_network)
