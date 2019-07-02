@@ -37,6 +37,8 @@ class BaseModel:
             if os.path.exists(self.weights):
                 print(f'Loading model...{self.weights}')
                 self.network.load_state_dict(torch.load(self.weights))
+            else:
+                print(f'Model Path Error: {self.weights}')
         except BaseException:
             print(
                 'Failed to load pre-trained network ' +
