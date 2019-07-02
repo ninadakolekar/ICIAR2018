@@ -20,7 +20,7 @@ import seaborn as sns
 from .datasets import *
 
 TRAIN_PATH = '/train'
-VALIDATION_PATH = '/valid'
+VALIDATION_PATH = '/test'
 
 mpl.use('Agg')
 
