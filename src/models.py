@@ -391,7 +391,8 @@ class ImageWiseModel(BaseModel):
 
         self.patch_wise_model = PatchWiseModel(
             args, patch_wise_network, train=False)
-        self._test_loader = None
+        self._test_loader = self._patch_loader(
+            self.args.testset_path, False)
 
     def train(self):
         self.network.train()
