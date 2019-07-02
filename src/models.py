@@ -35,7 +35,7 @@ class BaseModel:
     def load(self):
         try:
             if os.path.exists(self.weights):
-                print('Loading "patch-wise" model...')
+                print(f'Loading model...{self.weights}')
                 self.network.load_state_dict(torch.load(self.weights))
         except BaseException:
             print(
@@ -51,6 +51,7 @@ class BaseModel:
 
 class PatchWiseModel(BaseModel):
     def __init__(self, args, network, train=True):
+        print(f"PatchWiseModel: {network.name()}")
         super(
             PatchWiseModel,
             self).__init__(
@@ -375,6 +376,7 @@ class PatchWiseModel(BaseModel):
 
 class ImageWiseModel(BaseModel):
     def __init__(self, args, image_wise_network, patch_wise_network):
+        print(f"ImageWiseModel: {image_wise_network.name()}")
         super(
             ImageWiseModel,
             self).__init__(
