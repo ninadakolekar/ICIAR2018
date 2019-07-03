@@ -3,6 +3,7 @@ matplotlib.use('Agg')
 
 import os
 import glob
+from pathlib import Path
 import argparse
 
 import numpy as np
@@ -57,6 +58,35 @@ class LabelledDataset(Dataset):
 
     def __len__(self):
         return len(self.names)
+
+class TestDataset(Dataset):
+    def __init__(self, path):
+        super().__init__()
+
+        if os.path.isdir(path):
+            names = [str(name) for name in Path(path).glob('**/*.JPG')]
+        else:
+            names = [path]
+
+        self.path = path
+        self.names = list((names))
+
+    def __getitem__(self, index):
+
+        with Image.open(self.names[index]) as img:
+
+            extractor = PatchExtractor(img=img,patch_size=PATCH_SIZE,stride=PATCH_SIZE)
+            patches = extractor.extract_patches()
+
+            b = torch.zeros((len(patches), 3, PATCH_SIZE, PATCH_SIZE))
+            for i in range(len(patches)):
+                b[i] = transforms.ToTensor()(patches[i])
+
+            return b, self.names[index]
+
+    def __len__(self):
+        return len(self.names)
+
 
 
 class ModelArgs:
@@ -135,7 +165,7 @@ if __name__ == "__main__":
 
     # Load Dataset
     if args.val:
-        verbose("Evaluating in validation mode")
+        verbose("Evaluating samples")
 
         resluts_df = pd.DataFrame(columns=["Filepath","True Label","Predicted","Confidence"])
 
@@ -241,6 +271,53 @@ if __name__ == "__main__":
 
         resluts_df.to_csv(os.path.join(args.outdir,"results.csv"),index=False)
         verbose(f"Results saved to {os.path.join(args.outdir,'results.csv')}")
+
+    else:
+        verbose("Computing predictions")
+
+        resluts_df = pd.DataFrame(columns=["Filepath","Predicted","Confidence"])
+
+        CellsDataset = TestDataset(path=args.testset_path)
+        CellsLoader = DataLoader(dataset=CellsDataset,batch_size=1,shuffle=True,num_workers=4)
+
+        verbose("Dataset and DataLoader objects created")
+
+        for index, (images,filepath) in enumerate(CellsLoader):
+
+            if total%10 == 0 and total !=0:
+                verbose(f"Evaluated {total} images")
+
+            pw_network.eval()
+            with torch.no_grad():
+                images = images.view((-1,3,512,512))
+                if args.cuda:
+                    images = images.cuda()
+                pw_output = pw_network.features(Variable(images))
+            pw_output = pw_output.squeeze().view((1, -1, 64, 64)).data.cpu()
+
+            iw_network.eval()
+            with torch.no_grad():
+                if args.cuda:
+                    pw_output = pw_output.cuda()
+                iw_output = iw_network(pw_output)
+            
+            _, predicted = torch.max(iw_output.data,1)
+
+            iw_output = iw_output.detach().cpu().numpy()
+            predicted = predicted.cpu().numpy()
+
+            maj_prob = 2 - np.argmax(np.sum(np.eye(3)[np.array(predicted).reshape(-1)], axis=0)[::-1])
+
+            confidence = np.sum(np.array(predicted) == maj_prob)
+            confidence = np.round(confidence * 100, 2)
+
+            resluts_df.loc[index] = [filepath,LABELS[maj_prob],confidence]
+
+        verbose("Predictions completed")
+
+        resluts_df.to_csv(os.path.join(args.outdir,"results.csv"),index=False)
+        verbose(f"Results saved to {os.path.join(args.outdir,'results.csv')}")
+
 
 
 
