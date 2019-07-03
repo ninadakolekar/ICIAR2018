@@ -13,7 +13,7 @@ from sklearn.preprocessing import label_binarize
 from sklearn.metrics import roc_curve, auc
 
 import torch
-from torch.utils.data import Dataset, Dataloader
+from torch.utils.data import Dataset, DataLoader
 from torchvision.transforms import transforms
 from torch.autograd import Variable
 
@@ -139,9 +139,9 @@ if __name__ == "__main__":
         resluts_df = pd.DataFrame(columns=["Filepath","True Label","Predicted","Confidence"])
 
         CellsDataset = LabelledDataset(path=args.testset_path)
-        CellsLoader = Dataloader(dataset=CellsDataset,batch_size=1,shuffle=True,num_workers=4)
+        CellsLoader = DataLoader(dataset=CellsDataset,batch_size=1,shuffle=True,num_workers=4)
 
-        verbose("Dataset and Dataloader (labelled) objects created")
+        verbose("Dataset and DataLoader (labelled) objects created")
 
         labels_true = []
         labels_pred = np.empty((0, 3))
