@@ -285,7 +285,7 @@ if __name__ == "__main__":
         for index, (images,filepath) in enumerate(CellsLoader):
 
             if index%10 == 0 and index !=0:
-                verbose(f"Evaluated {total} images")
+                verbose(f"Evaluated {index} images")
 
             pw_network.eval()
             with torch.no_grad():
