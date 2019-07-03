@@ -119,10 +119,10 @@ if __name__ == "__main__":
     pw_checkpoint = os.path.join(args.checkpoints_path,"weights_"+pw_network.name()+".pth")
     iw_checkpoint = os.path.join(args.checkpoints_path,"weights_"+iw_network.name()+".pth")
 
-    assert(os.path.exist(args.checkpoints_path))
+    assert(os.path.exists(args.checkpoints_path))
 
-    assert(os.path.exist(pw_checkpoint) and os.path.isfile(pw_checkpoint))
-    assert(os.path.exist(iw_checkpoint) and os.path.isfile(pw_checkpoint))
+    assert(os.path.exists(pw_checkpoint) and os.path.isfile(pw_checkpoint))
+    assert(os.path.exists(iw_checkpoint) and os.path.isfile(pw_checkpoint))
 
     pw_network.load_state_dict(torch.load(pw_checkpoint))
     verbose("Loaded PW Weights")
