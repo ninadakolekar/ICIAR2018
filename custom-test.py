@@ -184,6 +184,9 @@ if __name__ == "__main__":
             labels_pred = np.append(
                 labels_pred, torch.exp(iw_output.data).cpu().numpy(), axis=0)
 
+            iw_output = iw_output.detach().cpu()
+            predicted = predicted.cpu()
+
             for idx in range(classes):
                 t_labels = label == idx
                 p_labels = predicted == idx
@@ -191,8 +194,8 @@ if __name__ == "__main__":
                 tpfp[idx] += torch.sum(p_labels)
                 tpfn[idx] += torch.sum(t_labels)
 
-            iw_output = iw_output.detach().cpu().numpy()
-            predicted = predicted.cpu().numpy()
+            iw_output = iw_output.numpy()
+            predicted = predicted.numpy()
 
             maj_prob = 2 - np.argmax(np.sum(np.eye(3)[np.array(predicted).reshape(-1)], axis=0)[::-1])
 
