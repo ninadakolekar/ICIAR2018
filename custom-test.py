@@ -73,6 +73,7 @@ class ModelArgs:
         parser.add_argument('--outdir',required=True,help='Directory to output CSV and ROC')
         parser.add_argument('--verbose',action='store_true',default=False,help='Enables verbose evaluation')
         parser.add_argument('--gpu-ids',type=str,default='0',help='gpu ids: e.g. 0  0,1,2, 0,2. use -1 for CPU')
+        parser.add_argument('--channels',type=int,default=1,help='number of channels created by the patch-wise network that feeds into the image-wise network (default: 1)')
         self._parser = parser
 
     def parse(self):
