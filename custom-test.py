@@ -284,7 +284,7 @@ if __name__ == "__main__":
 
         for index, (images,filepath) in enumerate(CellsLoader):
 
-            if total%10 == 0 and total !=0:
+            if index%10 == 0 and index !=0:
                 verbose(f"Evaluated {total} images")
 
             pw_network.eval()
