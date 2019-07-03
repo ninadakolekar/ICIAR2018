@@ -159,6 +159,9 @@ if __name__ == "__main__":
 
         for index, (images,label,filepath) in enumerate(CellsLoader):
 
+            if total%10 == 0 and total !=0:
+                verbose(f"Evaluated {total} images")
+
             pw_network.eval()
             with torch.no_grad():
                 images = images.view((-1,3,512,512))
