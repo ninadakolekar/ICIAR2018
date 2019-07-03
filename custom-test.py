@@ -198,7 +198,7 @@ if __name__ == "__main__":
 
             resluts_df.loc[index] = [filepath,LABELS[label],LABELS[maj_prob],confidence]
 
-            for idx in range(LABELS):
+            for idx in range(classes):
                 t_labels = label == idx
                 p_labels = predicted == idx
                 tp[idx] += torch.sum(t_labels == (p_labels * 2 - 1))
