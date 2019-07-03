@@ -220,6 +220,7 @@ if __name__ == "__main__":
                 (precision[label] + recall[label] + 1e-8)
 
         labels_true = label_binarize(labels_true, classes=range(classes))
+
         for lbl in range(classes):
             fpr, tpr, _ = roc_curve(labels_true[:, lbl], labels_pred[:, lbl])
             roc_auc = auc(fpr, tpr)
@@ -227,16 +228,16 @@ if __name__ == "__main__":
                 fpr, tpr, lw=2, label='{} (AUC: {:.1f})'.format(
                     LABELS[lbl], roc_auc * 100))
 
-        plt.xlim([0, 1])
-        plt.ylim([0, 1.05])
-        plt.xlabel('False Positive Rate')
-        plt.ylabel('True Positive Rate')
-        plt.legend(loc="lower right")
-        plt.plot([0, 1], [0, 1], color='navy', lw=2, linestyle='--')
-        plt.title('Receiver Operating Characteristic')
-        plt.savefig(os.path.join(args.outdir,"ROC.png"))
+            plt.xlim([0, 1])
+            plt.ylim([0, 1.05])
+            plt.xlabel('False Positive Rate')
+            plt.ylabel('True Positive Rate')
+            plt.legend(loc="lower right")
+            plt.plot([0, 1], [0, 1], color='navy', lw=2, linestyle='--')
+            plt.title('Receiver Operating Characteristic')
+            plt.savefig(os.path.join(args.outdir,f"ROC_{LABELS[lbl]}.png"))
 
-        verbose(f"ROC curve saved to {os.path.join(args.outdir,'ROC.png')}")
+        verbose(f"ROC curves saved to {args.outdir}")
 
         resluts_df.to_csv(os.path.join(args.outdir,"results.csv"),index=False)
         verbose(f"Results saved to {os.path.join(args.outdir,'results.csv')}")
