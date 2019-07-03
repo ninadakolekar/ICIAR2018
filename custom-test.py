@@ -169,7 +169,7 @@ if __name__ == "__main__":
                 if args.cuda:
                     images = images.cuda()
                 pw_output = pw_network.features(Variable(images))
-            pw_output = pw_output.squeeze().view((1, -1, 64, 64)).data.cpu().numpy()
+            pw_output = pw_output.squeeze().view((1, -1, 64, 64)).data.cpu()
 
             iw_network.eval()
             with torch.no_grad():
