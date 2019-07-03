@@ -184,6 +184,13 @@ if __name__ == "__main__":
             labels_pred = np.append(
                 labels_pred, torch.exp(iw_output.data).cpu().numpy(), axis=0)
 
+            for idx in range(classes):
+                t_labels = label == idx
+                p_labels = predicted == idx
+                tp[idx] += torch.sum(t_labels == (p_labels * 2 - 1))
+                tpfp[idx] += torch.sum(p_labels)
+                tpfn[idx] += torch.sum(t_labels)
+
             iw_output = iw_output.detach().cpu().numpy()
             predicted = predicted.cpu().numpy()
 
@@ -197,13 +204,6 @@ if __name__ == "__main__":
                 correct += 1
 
             resluts_df.loc[index] = [filepath,LABELS[label],LABELS[maj_prob],confidence]
-
-            for idx in range(classes):
-                t_labels = label == idx
-                p_labels = predicted == idx
-                tp[idx] += torch.sum(t_labels == (p_labels * 2 - 1))
-                tpfp[idx] += torch.sum(p_labels)
-                tpfn[idx] += torch.sum(t_labels)
 
         verbose("Evaluation completed")
         verbose(f"Accuracy: {correct/total}")
