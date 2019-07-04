@@ -1,6 +1,6 @@
 from src import *
 
-args = ModelOptions().parse()
+args = TrainingOptions().parse()
 
 torch.manual_seed(args.seed)
 if args.cuda:

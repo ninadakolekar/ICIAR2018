@@ -3,7 +3,7 @@
 # --test-batch-size 32 --debug 1 --tid pw1
 from src import *
 
-args = ModelOptions().parse()
+args = TrainingOptions().parse()
 
 torch.manual_seed(args.seed)
 if args.cuda:
