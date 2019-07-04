@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-"""Defines training procedure for Patch-wise and Image-wise network
+"""Defines validation procedure for Patch-wise and Image-wise network
 """
 
 import matplotlib
