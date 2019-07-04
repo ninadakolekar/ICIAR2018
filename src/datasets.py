@@ -1,19 +1,32 @@
 import os
-from pathlib import Path
 import glob
+from pathlib import Path
+
+# PyTORCH PACKAGES
+
 import torch
 import numpy as np
 from PIL import Image, ImageEnhance
 from torch.utils.data import Dataset
 from torchvision.transforms import transforms
+
+# SOURCE PACKAGES
+
 from .patch_extractor import PatchExtractor
-
-LABELS = ['grape', 'round', 'stellate']
-IMAGE_SIZE = (2048, 1536)
-PATCH_SIZE = 512
-
+from config import LABELS, IMAGE_SIZE, PATCH_SIZE
 
 class PatchWiseDataset(Dataset):
+    '''
+    Dataset class for input to the patch-wise network
+
+    Attributes:
+        path (str): Path of the train/test/val directory
+        stride (int): Stride used to extract patches (defaults to PATCH_SIZE in config Module)
+        labels (dict): A dictionary with keys as filepaths to images and values as associated labels
+        names (list): A list containing filepath of all images in an alphabetical order
+        shape (tuple): A tuple describing shape of the dataset after all augmentations
+        augment_size (int): Denotes the number of augmented images added to the dataset correponding to a single example
+    '''
     def __init__(
             self,
             path,
@@ -21,6 +34,16 @@ class PatchWiseDataset(Dataset):
             rotate=False,
             flip=False,
             enhance=False):
+        ''' Initialises the class attributes 
+        
+        Args:
+            path (str): Path of the train/test/val directory
+            stride (int): Stride used to extract patches (defaults to PATCH_SIZE in config Module)
+            rotate (bool): A boolean indicating whether to use rotation for augmentation or not
+            flip (bool): A boolean indicating whether to use flipping for augmentation or not
+            enhance (bool): A boolean indicating whether to use color enhancement for augmentation or not
+        
+        '''
         super().__init__()
 
         wp = int((IMAGE_SIZE[0] - PATCH_SIZE) / stride + 1)
@@ -48,6 +71,15 @@ class PatchWiseDataset(Dataset):
         self.augment_size = np.prod(self.shape) / len(labels)
 
     def __getitem__(self, index):
+        ''' Fetches an example of given index from the dataset 
+        
+        Args:
+            index (int): Index of the image in the dataset
+
+        Returns:
+            tensor: A PyTorch Tensor containing extracted patches from the image
+            int: An integer denoting the associated class
+        '''
         im, xpatch, ypatch, rotation, flip, enhance = np.unravel_index(
             index, self.shape)
 
@@ -72,6 +104,14 @@ class PatchWiseDataset(Dataset):
             return transforms.ToTensor()(patch), label
 
     def __len__(self):
+        ''' Fetches the length of the dataset 
+        
+        Args:
+            None
+
+        Returns:
+            int: Returns the length of the dataset
+        '''
         return np.prod(self.shape)
 
 
@@ -138,8 +178,41 @@ class ImageWiseDataset(Dataset):
         return np.prod(self.shape)
 
 
+class LabelledDataset(Dataset):
+
+    def __init__(self,path):
+
+        labels = {
+            name: index for index in range(
+                len(LABELS)) for name in glob.glob(
+                path +
+                '/' +
+                LABELS[index] +
+                '/*.JPG')}
+
+        self.labels = labels
+        self.names = list(sorted(labels.keys()))
+    
+    def __getitem__(self,index):
+
+        with Image.open(self.names[index]) as img:
+
+            extractor = PatchExtractor(img=img,patch_size=PATCH_SIZE,stride=PATCH_SIZE)
+            patches = extractor.extract_patches()
+
+            label = self.labels[self.names[index]]
+
+            b = torch.zeros((len(patches), 3, PATCH_SIZE, PATCH_SIZE))
+            for i in range(len(patches)):
+                b[i] = transforms.ToTensor()(patches[i])
+
+            return b, label, self.names[index]
+
+    def __len__(self):
+        return len(self.names)
+
 class TestDataset(Dataset):
-    def __init__(self, path, stride=PATCH_SIZE, augment=False):
+    def __init__(self, path):
         super().__init__()
 
         if os.path.isdir(path):
@@ -147,44 +220,21 @@ class TestDataset(Dataset):
         else:
             names = [path]
 
-        print(f"{len(names)} images loaded")
-
         self.path = path
-        self.stride = stride
-        self.augment = augment
         self.names = list((names))
 
     def __getitem__(self, index):
-        file = self.names[index]
-        with Image.open(file) as img:
 
-            bins = 8 if self.augment else 1
-            extractor = PatchExtractor(
-                img=img, patch_size=PATCH_SIZE, stride=self.stride)
-            b = torch.zeros(
-                (bins,
-                 extractor.shape()[0] *
-                 extractor.shape()[1],
-                 3,
-                 PATCH_SIZE,
-                 PATCH_SIZE))
+        with Image.open(self.names[index]) as img:
 
-            for k in range(bins):
+            extractor = PatchExtractor(img=img,patch_size=PATCH_SIZE,stride=PATCH_SIZE)
+            patches = extractor.extract_patches()
 
-                if k % 4 != 0:
-                    img = img.rotate((k % 4) * 90)
+            b = torch.zeros((len(patches), 3, PATCH_SIZE, PATCH_SIZE))
+            for i in range(len(patches)):
+                b[i] = transforms.ToTensor()(patches[i])
 
-                if k // 4 != 0:
-                    img = img.transpose(Image.FLIP_LEFT_RIGHT)
-
-                extractor = PatchExtractor(
-                    img=img, patch_size=PATCH_SIZE, stride=self.stride)
-                patches = extractor.extract_patches()
-
-                for i in range(len(patches)):
-                    b[k, i] = transforms.ToTensor()(patches[i])
-
-            return b, file
+            return b, self.names[index]
 
     def __len__(self):
         return len(self.names)
