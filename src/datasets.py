@@ -81,7 +81,7 @@ class PatchWiseDataset(Dataset):
 
         Returns:
             tensor: A PyTorch Tensor containing extracted patches from the image
-            int: An integer denoting the associated class
+            int: An integer denoting the associated class/label
         '''
         im, xpatch, ypatch, rotation, flip, enhance = np.unravel_index(
             index, self.shape)
@@ -181,7 +181,7 @@ class ImageWiseDataset(Dataset):
 
         Returns:
             tensor: A PyTorch Tensor containing extracted patches from the image
-            int: An integer denoting the associated class
+            int: An integer denoting the associated class/label
         '''
         im, rotation, flip, enhance = np.unravel_index(index, self.shape)
 
@@ -231,7 +231,7 @@ class LabelledDataset(Dataset):
     Used for validation functions.
 
     Attributes:
-        path (str): Path of the train/test/val directory
+        path (str): Path of the val directory
         labels (dict): A dictionary with keys as filepaths to images and values as associated labels
         names (list): A list containing filepath of all images in an alphabetical order
 
@@ -243,7 +243,7 @@ class LabelledDataset(Dataset):
         ''' Initialises the class attributes 
         
         Args:
-            path (str): Path of the train/test/val directory        
+            path (str): Path of the val directory        
         '''
 
         labels = {
@@ -301,7 +301,7 @@ class TestDataset(Dataset):
     Used for making predictions (test-time)
 
     Attributes:
-        path (str): Path of the train/test/val directory
+        path (str): Path of the test directory
         names (list): A list containing filepath of all images
 
     Note:
@@ -311,7 +311,7 @@ class TestDataset(Dataset):
         ''' Initialises the class attributes 
         
         Args:
-            path (str): Path of the train/test/val directory        
+            path (str): Path of the test directory        
         '''
 
         super().__init__()
@@ -325,6 +325,15 @@ class TestDataset(Dataset):
         self.names = list((names))
 
     def __getitem__(self, index):
+        ''' Fetches an example of given index from the dataset 
+        
+        Args:
+            index (int): Index of the image in the dataset
+
+        Returns:
+            tensor: A PyTorch Tensor containing extracted patches from the image
+            string: Location of the associated file
+        '''
 
         with Image.open(self.names[index]) as img:
 
