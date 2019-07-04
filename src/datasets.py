@@ -19,9 +19,12 @@ class PatchWiseDataset(Dataset):
     '''
     Dataset class for input to the patch-wise network
 
+    An object of this class loads the extracted patches and the label for each image from the given directory.
+    Used for training functions.
+
     Attributes:
         path (str): Path of the train/test/val directory
-        stride (int): Stride used to extract patches (defaults to PATCH_SIZE in config Module)
+        stride (int): Stride used to extract patches
         labels (dict): A dictionary with keys as filepaths to images and values as associated labels
         names (list): A list containing filepath of all images in an alphabetical order
         shape (tuple): A tuple describing shape of the dataset after all augmentations
@@ -38,7 +41,7 @@ class PatchWiseDataset(Dataset):
         
         Args:
             path (str): Path of the train/test/val directory
-            stride (int): Stride used to extract patches (defaults to PATCH_SIZE in config Module)
+            stride (int): Stride used to extract patches (defaults to `ICIAR2018.src.config.PATCH_SIZE` in `ICIAR2018.src.config` Module)
             rotate (bool): A boolean indicating whether to use rotation for augmentation or not
             flip (bool): A boolean indicating whether to use flipping for augmentation or not
             enhance (bool): A boolean indicating whether to use color enhancement for augmentation or not
@@ -116,6 +119,21 @@ class PatchWiseDataset(Dataset):
 
 
 class ImageWiseDataset(Dataset):
+    '''
+    Dataset class for input to the image-wise network
+
+    An object of this class loads the output of patch-wise network along with it's label for each image from the given directory.
+    Used for training functions.
+
+    Attributes:
+        path (str): Path of the train/test/val directory
+        stride (int): Stride used to extract patches
+        labels (dict): A dictionary with keys as filepaths to images and values as associated labels
+        names (list): A list containing filepath of all images in an alphabetical order
+        shape (tuple): A tuple describing shape of the dataset after all augmentations
+        augment_size (int): Denotes the number of augmented images added to the dataset correponding to a single example
+    '''
+
     def __init__(
             self,
             path,
@@ -123,6 +141,16 @@ class ImageWiseDataset(Dataset):
             rotate=False,
             flip=False,
             enhance=False):
+        ''' Initialises the class attributes 
+        
+        Args:
+            path (str): Path of the train/test/val directory
+            stride (int): Stride used to extract patches (defaults to `ICIAR2018.src.config.PATCH_SIZE` in `ICIAR2018.src.config` Module)
+            rotate (bool): A boolean indicating whether to use rotation for augmentation or not
+            flip (bool): A boolean indicating whether to use flipping for augmentation or not
+            enhance (bool): A boolean indicating whether to use color enhancement for augmentation or not
+        
+        '''
         super().__init__()
 
         labels = {
@@ -146,6 +174,15 @@ class ImageWiseDataset(Dataset):
         self.augment_size = np.prod(self.shape) / len(labels)
 
     def __getitem__(self, index):
+        ''' Fetches an example of given index from the dataset 
+        
+        Args:
+            index (int): Index of the image in the dataset
+
+        Returns:
+            tensor: A PyTorch Tensor containing extracted patches from the image
+            int: An integer denoting the associated class
+        '''
         im, rotation, flip, enhance = np.unravel_index(index, self.shape)
 
         with Image.open(self.names[im]) as img:
