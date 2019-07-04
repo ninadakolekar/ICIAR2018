@@ -7,6 +7,9 @@
 # --checkpoints-path ../pw1 --gpu-ids 0,1 --network 1 --batch-size 32
 # --test-batch-size 32 --debug 1 --tid pw1
 
+import matplotlib
+matplotlib.use('Agg')
+
 # PyTORCH PACKAGES
 
 import torch
