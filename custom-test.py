@@ -155,10 +155,10 @@ if __name__ == "__main__":
     assert(os.path.exists(iw_checkpoint) and os.path.isfile(pw_checkpoint))
 
     pw_network.load_state_dict(torch.load(pw_checkpoint))
-    verbose("Loaded PW Weights")
+    verbose("Loaded PW Weights: {pw_checkpoint}")
 
     iw_network.load_state_dict(torch.load(iw_checkpoint))
-    verbose("Loaded IW Weights")
+    verbose("Loaded IW Weights: {iw_checkpoint}")
 
     pw_network.eval()
     iw_network.eval()
@@ -317,16 +317,3 @@ if __name__ == "__main__":
 
         resluts_df.to_csv(os.path.join(args.outdir,"results.csv"),index=False)
         verbose(f"Results saved to {os.path.join(args.outdir,'results.csv')}")
-
-
-
-
-
-
-
-    
-
-
-    
-
-
