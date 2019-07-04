@@ -1,3 +1,7 @@
+# -*- coding: utf-8 -*-
+"""Defines training, test and validation Dataset classes for Patch-wise and Image-wise networks
+"""
+
 import os
 import glob
 from pathlib import Path
