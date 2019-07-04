@@ -20,7 +20,7 @@ class PatchWiseDataset(Dataset):
     Dataset class for input to the patch-wise network
 
     An object of this class loads the extracted patches and the label for each image from the given directory.
-    Used for training functions.
+    Used for patch-wise network training.
 
     Attributes:
         path (str): Path of the train/test/val directory
@@ -123,7 +123,7 @@ class ImageWiseDataset(Dataset):
     Dataset class for input to the image-wise network
 
     An object of this class loads the output of patch-wise network along with it's label for each image from the given directory.
-    Used for training functions.
+    Used for image-wise network training.
 
     Attributes:
         path (str): Path of the train/test/val directory
@@ -212,12 +212,39 @@ class ImageWiseDataset(Dataset):
             return b, label
 
     def __len__(self):
+        ''' Fetches the length of the dataset 
+        
+        Args:
+            None
+
+        Returns:
+            int: Returns the length of the dataset
+        '''
         return np.prod(self.shape)
 
 
 class LabelledDataset(Dataset):
+    '''
+    Dataset class for validation
+
+    An object of this class loads the extracted patches and the label for each image from the given directory.
+    Used for validation functions.
+
+    Attributes:
+        path (str): Path of the train/test/val directory
+        labels (dict): A dictionary with keys as filepaths to images and values as associated labels
+        names (list): A list containing filepath of all images in an alphabetical order
+
+    Note:
+        The stride used to extracted patches is set to `ICIAR2018.src.config.PATCH_SIZE` in `ICIAR2018.src.config` Module
+    '''
 
     def __init__(self,path):
+        ''' Initialises the class attributes 
+        
+        Args:
+            path (str): Path of the train/test/val directory        
+        '''
 
         labels = {
             name: index for index in range(
@@ -231,6 +258,16 @@ class LabelledDataset(Dataset):
         self.names = list(sorted(labels.keys()))
     
     def __getitem__(self,index):
+        ''' Fetches an example of given index from the dataset 
+        
+        Args:
+            index (int): Index of the image in the dataset
+
+        Returns:
+            tensor: A PyTorch Tensor containing extracted patches from the image
+            int: An integer denoting the associated class
+            string: Location of the associated file
+        '''
 
         with Image.open(self.names[index]) as img:
 
@@ -246,10 +283,37 @@ class LabelledDataset(Dataset):
             return b, label, self.names[index]
 
     def __len__(self):
+        ''' Fetches the length of the dataset 
+        
+        Args:
+            None
+
+        Returns:
+            int: Returns the length of the dataset
+        '''
         return len(self.names)
 
 class TestDataset(Dataset):
+    '''
+    Dataset class for test (predictions)
+
+    An object of this class loads the extracted patches for each image from the given directory.
+    Used for making predictions (test-time)
+
+    Attributes:
+        path (str): Path of the train/test/val directory
+        names (list): A list containing filepath of all images
+
+    Note:
+        The stride used to extracted patches is set to `ICIAR2018.src.config.PATCH_SIZE` in `ICIAR2018.src.config` Module
+    '''
     def __init__(self, path):
+        ''' Initialises the class attributes 
+        
+        Args:
+            path (str): Path of the train/test/val directory        
+        '''
+
         super().__init__()
 
         if os.path.isdir(path):
@@ -274,4 +338,12 @@ class TestDataset(Dataset):
             return b, self.names[index]
 
     def __len__(self):
+        ''' Fetches the length of the dataset 
+        
+        Args:
+            None
+
+        Returns:
+            int: Returns the length of the dataset
+        '''
         return len(self.names)
