@@ -33,7 +33,7 @@ class LabelledDataset(Dataset):
 
         df = pd.read_csv(path)
 
-        labels = {df.iloc[i,0].replace("'",'').replace('(','').replace(')','').replace(',','').strip():df.iloc[i,1].lower() for i in range(len(df))}
+        labels = {df.iloc[i,0].replace("'",'')[1:-1].replace(',','').strip():df.iloc[i,1].lower() for i in range(len(df))}
 
         self.labels = labels
         self.names = list(sorted(labels.keys()))
@@ -86,10 +86,10 @@ if __name__ == "__main__":
     assert(os.path.exists(iw_checkpoint) and os.path.isfile(pw_checkpoint))
 
     pw_network.load_state_dict(torch.load(pw_checkpoint))
-    print("Loaded PW Weights: {pw_checkpoint}")
+    print(f"Loaded PW Weights: {pw_checkpoint}")
 
     iw_network.load_state_dict(torch.load(iw_checkpoint))
-    print("Loaded IW Weights: {iw_checkpoint}")
+    print(f"Loaded IW Weights: {iw_checkpoint}")
 
     train_loader = DataLoader(dataset=train_dataset,batch_size=args.batch_size,shuffle=True,num_workers=4)
     test_loader = DataLoader(dataset=test_dataset,batch_size=1,shuffle=True,num_workers=4)
