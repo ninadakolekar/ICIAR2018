@@ -34,7 +34,7 @@ class LabelledDataset(Dataset):
 
         df = pd.read_csv(path)
 
-        labels = {df.iloc[i,0].replace("'",'')[1:-1].replace(',','').strip():df.iloc[i,1].lower() for i in range(len(df))}
+        labels = {df.iloc[i,0].replace("'",'')[1:-1].replace(',','').strip():LABELS.index(df.iloc[i,1].lower()) for i in range(len(df))}
 
         self.labels = labels
         self.names = list(sorted(labels.keys()))
