@@ -92,6 +92,9 @@ if __name__ == "__main__":
     iw_network.load_state_dict(torch.load(iw_checkpoint))
     print(f"Loaded IW Weights: {iw_checkpoint}")
 
+    print(iw_network)
+    exit(0)
+
     train_loader = DataLoader(dataset=train_dataset,batch_size=args.batch_size,shuffle=True,num_workers=4)
     test_loader = DataLoader(dataset=test_dataset,batch_size=1,shuffle=True,num_workers=4)
 
@@ -168,7 +171,7 @@ if __name__ == "__main__":
                 if args.cuda:
                     images = images.cuda()
                 pw_output = pw_network.features(Variable(images))
-            pw_output = pw_output.squeeze().view((1, -1, 64, 64)).data.cpu()
+            pw_output = pw_output.squeeze().view((-1, 12, 64, 64)).data.cpu()
 
             iw_network.eval()
             with torch.no_grad():
