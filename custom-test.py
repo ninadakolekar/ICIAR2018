@@ -195,7 +195,7 @@ if __name__ == "__main__":
 
         resluts_df = pd.DataFrame(columns=["Filepath","True Label","Predicted","Confidence"])
 
-        CellsDataset = CSVDataset(path=args.testset_path)
+        CellsDataset = LabelledDataset(path=args.testset_path)
         CellsLoader = DataLoader(dataset=CellsDataset,batch_size=1,shuffle=True,num_workers=4)
 
         verbose("Dataset and DataLoader (labelled) objects created")
