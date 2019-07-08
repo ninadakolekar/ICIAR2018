@@ -129,7 +129,7 @@ if __name__ == "__main__":
                 images = images.view((-1,3,512,512))
                 if args.cuda:
                     images = images.cuda()
-                pw_output = pw_network.features(Variable(images))
+                pw_output = pw_network.module.features(Variable(images))
             pw_output = pw_output.squeeze().view((1, -1, 64, 64)).data.cpu()
 
             iw_network.train()
@@ -170,7 +170,7 @@ if __name__ == "__main__":
                 images = images.view((-1,3,512,512))
                 if args.cuda:
                     images = images.cuda()
-                pw_output = pw_network.features(Variable(images))
+                pw_output = pw_network.module.features(Variable(images))
             pw_output = pw_output.squeeze().view((1, -1, 64, 64)).data.cpu()
 
             iw_network.eval()
