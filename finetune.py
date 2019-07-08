@@ -172,7 +172,7 @@ if __name__ == "__main__":
 
             iw_network.eval()
             with torch.no_grad():
-                iw_output = iw_network(Variable(pw_output)).cpu()
+                iw_output = iw_network(Variable(pw_output.cuda())).cpu()
                 loss = F.nll_loss(iw_output, Variable(label))
                 val_loss += loss
 
