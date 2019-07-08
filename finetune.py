@@ -131,7 +131,7 @@ if __name__ == "__main__":
             iw_network.train()
 
             optimizer.zero_grad()
-            iw_output = iw_network(Variable(pw_output))
+            iw_output = iw_network(Variable(pw_output.cuda()))
             loss = F.nll_loss(iw_output, Variable(label))
             train_loss += loss
             loss.backward()
