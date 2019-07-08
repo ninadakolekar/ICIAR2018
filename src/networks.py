@@ -8,7 +8,7 @@ import torch.nn.functional as F
 
 
 class BaseNetwork(nn.Module):
-     '''
+    '''
     Base Network class for initializing network weights and contain meta-information about the network
     Inherits from `torch.nn.Module` class
 
@@ -19,11 +19,11 @@ class BaseNetwork(nn.Module):
 
     def __init__(self, name, channels=1):
         ''' Initialises the class attributes 
-        
+
         Args:
             name (str): Name of the network
             channels (int): Number of channels in the output of the PW Network/input to the IW network
-        
+
         '''
         super(BaseNetwork, self).__init__()
         self._name = name
