@@ -91,7 +91,7 @@ if __name__ == "__main__":
     iw_network.load_state_dict(torch.load(iw_checkpoint))
     print("Loaded IW Weights: {iw_checkpoint}")
 
-    train_loader = DataLoader(dataset=train_dataset,batch_size=16,shuffle=True,num_workers=4)
+    train_loader = DataLoader(dataset=train_dataset,batch_size=args.batch_size,shuffle=True,num_workers=4)
     test_loader = DataLoader(dataset=test_dataset,batch_size=1,shuffle=True,num_workers=4)
 
     # Fine-tune IW Network
