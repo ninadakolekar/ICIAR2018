@@ -67,11 +67,11 @@ if __name__ == "__main__":
     train_dataset = LabelledDataset("/home/nitish/Desktop/ninad/matrigel_train.csv")
     test_dataset = LabelledDataset("/home/nitish/Desktop/ninad/matrigel_val.csv")
 
-    pw_network = PatchWiseNetwork(args.channels,init=False)
+    pw_network = nn.DataParallel(PatchWiseNetwork(args.channels,init=False))
     pw_network = pw_network.cuda() if args.cuda else pw_network
     print(f"Loaded PW Network: {pw_network.name()}")
 
-    iw_network = ImageWiseNetwork(args.channels,init=False)
+    iw_network = nn.DataParallel(ImageWiseNetwork(args.channels,init=False))
     iw_network = iw_network.cuda() if args.cuda else iw_network
     print(f"Loaded IW Network: {iw_network.name()}")
 
