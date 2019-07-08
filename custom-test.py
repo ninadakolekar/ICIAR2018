@@ -148,8 +148,6 @@ if __name__ == "__main__":
     pw_checkpoint = args.pw_checkpoints_path
     iw_checkpoint = args.iw_checkpoints_path
 
-    assert(os.path.exists(args.checkpoints_path))
-
     assert(os.path.exists(pw_checkpoint) and os.path.isfile(pw_checkpoint))
     assert(os.path.exists(iw_checkpoint) and os.path.isfile(pw_checkpoint))
 
