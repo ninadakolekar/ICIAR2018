@@ -47,7 +47,6 @@ class LabelledDataset(Dataset):
             patches = extractor.extract_patches()
 
             label = self.labels[self.names[index]]
-            print(label,type(label))
 
             b = torch.zeros((len(patches), 3, PATCH_SIZE, PATCH_SIZE))
             for i in range(len(patches)):
@@ -136,7 +135,7 @@ if __name__ == "__main__":
             iw_network.train()
 
             optimizer.zero_grad()
-            iw_output = iw_network(Variable(pw_output.cuda()))
+            iw_output = iw_network(Variable(pw_output.cuda())).cpu()
             loss = F.nll_loss(iw_output, Variable(label))
             train_loss += loss
             loss.backward()
