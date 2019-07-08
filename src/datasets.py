@@ -6,7 +6,7 @@ import os
 import glob
 from pathlib import Path
 
-# PyTORCH PACKAGES
+# PyTorch PACKAGES
 
 import torch
 import numpy as np
