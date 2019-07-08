@@ -47,7 +47,7 @@ class PatchWiseDataset(Dataset):
 
         Args:
             path (str): Path of the train/test/val directory
-            stride (int): Stride used to extract patches (defaults to `ICIAR2018.src.config.PATCH_SIZE` in `ICIAR2018.src.config` Module)
+            stride (int): Stride used to extract patches (defaults to PATCH_SIZE in config Module)
             rotate (bool): A boolean indicating whether to use rotation for augmentation or not
             flip (bool): A boolean indicating whether to use flipping for augmentation or not
             enhance (bool): A boolean indicating whether to use color enhancement for augmentation or not
@@ -151,7 +151,7 @@ class ImageWiseDataset(Dataset):
 
         Args:
             path (str): Path of the train/test/val directory
-            stride (int): Stride used to extract patches (defaults to `ICIAR2018.src.config.PATCH_SIZE` in `ICIAR2018.src.config` Module)
+            stride (int): Stride used to extract patches (defaults to PATCH_SIZE in config Module)
             rotate (bool): A boolean indicating whether to use rotation for augmentation or not
             flip (bool): A boolean indicating whether to use flipping for augmentation or not
             enhance (bool): A boolean indicating whether to use color enhancement for augmentation or not
@@ -242,7 +242,7 @@ class LabelledDataset(Dataset):
         names (list): A list containing filepath of all images in an alphabetical order
 
     Note:
-        The stride used to extracted patches is set to `ICIAR2018.src.config.PATCH_SIZE` in `ICIAR2018.src.config` Module
+        The stride used to extracted patches is set to PATCH_SIZE in config Module
     '''
 
     def __init__(self, path):
@@ -313,7 +313,7 @@ class TestDataset(Dataset):
         names (list): A list containing filepath of all images
 
     Note:
-        The stride used to extracted patches is set to `ICIAR2018.src.config.PATCH_SIZE` in `ICIAR2018.src.config` Module
+        The stride used to extracted patches is set to PATCH_SIZE in config Module
     '''
 
     def __init__(self, path):
