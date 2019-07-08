@@ -92,8 +92,8 @@ if __name__ == "__main__":
     iw_network.load_state_dict(torch.load(iw_checkpoint))
     print(f"Loaded IW Weights: {iw_checkpoint}")
 
-    pw_network = nn.DataParallel(pw_network)
-    iw_network = nn.DataParallel(iw_network)
+    pw_network = nn.DataParallel(pw_network,device_ids=[0,1])
+    iw_network = nn.DataParallel(iw_network,device_ids=[0,1])
 
     train_loader = DataLoader(dataset=train_dataset,batch_size=args.batch_size,shuffle=True,num_workers=4)
     test_loader = DataLoader(dataset=test_dataset,batch_size=1,shuffle=True,num_workers=4)
