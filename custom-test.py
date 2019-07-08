@@ -97,7 +97,8 @@ class ModelArgs:
 
         parser.add_argument('--testset-path',type=str,required='True',help='Path to test directory or file')
         parser.add_argument('--val',action='store_true',default=False,help='Set mode to validation')
-        parser.add_argument('--checkpoints-path',type=str,required=True,help='Path to saved model checkpoints')
+        parser.add_argument('--pw-checkpoints-path',type=str,required=True,help='Path to saved PW model checkpoints')
+        parser.add_argument('--iw-checkpoints-path',type=str,required=True,help='Path to saved IW model checkpoints')
         parser.add_argument('--no-cuda',action='store_true',default=False,help='Disables CUDA evaluation')
         parser.add_argument('--seed',type=int,default=42,help='Random seed (default: 42)')
         parser.add_argument('--outdir',required=True,help='Directory to output CSV and ROC')
@@ -144,10 +145,8 @@ if __name__ == "__main__":
     iw_network = iw_network.cuda() if args.cuda else iw_network
     verbose(f"Loaded IW Network: {iw_network.name()}")
 
-    assert(os.path.isdir(args.checkpoints_path))
-
-    pw_checkpoint = os.path.join(args.checkpoints_path,"weights_"+pw_network.name()+".pth")
-    iw_checkpoint = os.path.join(args.checkpoints_path,"weights_"+iw_network.name()+".pth")
+    pw_checkpoint = args.pw_checkpoints_path
+    iw_checkpoint = args.iw_checkpoints_path
 
     assert(os.path.exists(args.checkpoints_path))
 
