@@ -8,6 +8,7 @@ import argparse
 
 import torch
 
+
 class TrainingOptions(object):
     '''
     Defines command-line arguments/options for training and functions to parse them
@@ -17,13 +18,15 @@ class TrainingOptions(object):
     Attributes:
         _parser: An object of the ArgumentParser class of the argparse module of the Python3 standard library
     '''
+
     def __init__(self):
         ''' Initialises the argument parser with appropriate options
-        
+
         Args:
-            None        
+            None
         '''
-        parser = argparse.ArgumentParser(description='Classification of morphology in cancer cell-lines')
+        parser = argparse.ArgumentParser(
+            description='Classification of morphology in cancer cell-lines')
         parser.add_argument(
             '--dataset-path',
             type=str,
@@ -128,7 +131,7 @@ class TrainingOptions(object):
 
         Note:
             Also sets the GPU settings as mentioned in the CLI arguments
-        
+
         Args:
             None
 
@@ -148,6 +151,7 @@ class TrainingOptions(object):
 
         return opt
 
+
 class ValidationOptions(object):
     '''
     Defines command-line arguments/options for validation and functions to parse them
@@ -160,22 +164,55 @@ class ValidationOptions(object):
 
     def __init__(self):
         ''' Initialises the argument parser with appropriate options
-        
+
         Args:
-            None        
+            None
         '''
 
-        parser = argparse.ArgumentParser(description='Classification of morphology in cancer cell-lines')
+        parser = argparse.ArgumentParser(
+            description='Classification of morphology in cancer cell-lines')
 
-        parser.add_argument('--testset-path',type=str,required='True',help='Path to test directory or file')
-        parser.add_argument('--val',action='store_true',default=False,help='Set mode to validation')
-        parser.add_argument('--checkpoints-path',type=str,required=True,help='Path to saved model checkpoints')
-        parser.add_argument('--no-cuda',action='store_true',default=False,help='Disables CUDA evaluation')
-        parser.add_argument('--seed',type=int,default=42,help='Random seed (default: 42)')
-        parser.add_argument('--outdir',required=True,help='Directory to output CSV and ROC')
-        parser.add_argument('--verbose',action='store_true',default=False,help='Enables verbose evaluation')
-        parser.add_argument('--gpu-ids',type=str,default='0',help='gpu ids: e.g. 0  0,1,2, 0,2. use -1 for CPU')
-        parser.add_argument('--channels',type=int,default=1,help='number of channels created by the patch-wise network that feeds into the image-wise network (default: 1)')
+        parser.add_argument(
+            '--testset-path',
+            type=str,
+            required='True',
+            help='Path to test directory or file')
+        parser.add_argument(
+            '--val',
+            action='store_true',
+            default=False,
+            help='Set mode to validation')
+        parser.add_argument(
+            '--checkpoints-path',
+            type=str,
+            required=True,
+            help='Path to saved model checkpoints')
+        parser.add_argument(
+            '--no-cuda',
+            action='store_true',
+            default=False,
+            help='Disables CUDA evaluation')
+        parser.add_argument('--seed', type=int, default=42,
+                            help='Random seed (default: 42)')
+        parser.add_argument(
+            '--outdir',
+            required=True,
+            help='Directory to output CSV and ROC')
+        parser.add_argument(
+            '--verbose',
+            action='store_true',
+            default=False,
+            help='Enables verbose evaluation')
+        parser.add_argument(
+            '--gpu-ids',
+            type=str,
+            default='0',
+            help='gpu ids: e.g. 0  0,1,2, 0,2. use -1 for CPU')
+        parser.add_argument(
+            '--channels',
+            type=int,
+            default=1,
+            help='number of channels created by the patch-wise network that feeds into the image-wise network (default: 1)')
         self._parser = parser
 
     def parse(self):
@@ -183,7 +220,7 @@ class ValidationOptions(object):
 
         Note:
             Also sets the GPU settings as mentioned in the CLI arguments
-        
+
         Args:
             None
 
@@ -205,6 +242,7 @@ class ValidationOptions(object):
             print('-------------- End ----------------\n')
 
         return opt
+
 
 class TestOptions(object):
     '''
@@ -218,22 +256,55 @@ class TestOptions(object):
 
     def __init__(self):
         ''' Initialises the argument parser with appropriate options
-        
+
         Args:
-            None        
+            None
         '''
 
-        parser = argparse.ArgumentParser(description='Classification of morphology in cancer cell-lines')
+        parser = argparse.ArgumentParser(
+            description='Classification of morphology in cancer cell-lines')
 
-        parser.add_argument('--testset-path',type=str,required='True',help='Path to test directory or file')
-        parser.add_argument('--val',action='store_true',default=False,help='Set mode to validation')
-        parser.add_argument('--checkpoints-path',type=str,required=True,help='Path to saved model checkpoints')
-        parser.add_argument('--no-cuda',action='store_true',default=False,help='Disables CUDA evaluation')
-        parser.add_argument('--seed',type=int,default=42,help='Random seed (default: 42)')
-        parser.add_argument('--out-csv',required=True,help='Path to output CSV')
-        parser.add_argument('--verbose',action='store_true',default=False,help='Enables verbose evaluation')
-        parser.add_argument('--gpu-ids',type=str,default='0',help='gpu ids: e.g. 0  0,1,2, 0,2. use -1 for CPU')
-        parser.add_argument('--channels',type=int,default=1,help='number of channels created by the patch-wise network that feeds into the image-wise network (default: 1)')
+        parser.add_argument(
+            '--testset-path',
+            type=str,
+            required='True',
+            help='Path to test directory or file')
+        parser.add_argument(
+            '--val',
+            action='store_true',
+            default=False,
+            help='Set mode to validation')
+        parser.add_argument(
+            '--checkpoints-path',
+            type=str,
+            required=True,
+            help='Path to saved model checkpoints')
+        parser.add_argument(
+            '--no-cuda',
+            action='store_true',
+            default=False,
+            help='Disables CUDA evaluation')
+        parser.add_argument('--seed', type=int, default=42,
+                            help='Random seed (default: 42)')
+        parser.add_argument(
+            '--out-csv',
+            required=True,
+            help='Path to output CSV')
+        parser.add_argument(
+            '--verbose',
+            action='store_true',
+            default=False,
+            help='Enables verbose evaluation')
+        parser.add_argument(
+            '--gpu-ids',
+            type=str,
+            default='0',
+            help='gpu ids: e.g. 0  0,1,2, 0,2. use -1 for CPU')
+        parser.add_argument(
+            '--channels',
+            type=int,
+            default=1,
+            help='number of channels created by the patch-wise network that feeds into the image-wise network (default: 1)')
         self._parser = parser
 
     def parse(self):
@@ -241,7 +312,7 @@ class TestOptions(object):
 
         Note:
             Also sets the GPU settings as mentioned in the CLI arguments
-        
+
         Args:
             None
 
@@ -263,4 +334,3 @@ class TestOptions(object):
             print('-------------- End ----------------\n')
 
         return opt
-

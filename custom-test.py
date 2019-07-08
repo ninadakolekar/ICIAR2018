@@ -1,34 +1,33 @@
+from src.patch_extractor import PatchExtractor
+from src.networks import PatchWiseNetwork, ImageWiseNetwork
+from torch.autograd import Variable
+from torchvision.transforms import transforms
+from torch.utils.data import Dataset, DataLoader
+import torch
+from sklearn.metrics import roc_curve, auc
+from sklearn.preprocessing import label_binarize
+from PIL import Image
+import matplotlib.pyplot as plt
+import pandas as pd
+import numpy as np
+import argparse
+from pathlib import Path
+import glob
+import os
 import matplotlib
 matplotlib.use('Agg')
 
-import os
-import glob
-from pathlib import Path
-import argparse
-
-import numpy as np
-import pandas as pd
-import matplotlib.pyplot as plt
-from PIL import Image
-from sklearn.preprocessing import label_binarize
-from sklearn.metrics import roc_curve, auc
-
-import torch
-from torch.utils.data import Dataset, DataLoader
-from torchvision.transforms import transforms
-from torch.autograd import Variable
 
 # SOURCE PACKAGES #
-from src.networks import PatchWiseNetwork, ImageWiseNetwork
-from src.patch_extractor import PatchExtractor
 
 # CONSTANTS
 LABELS = ['grape', 'round', 'stellate']
 PATCH_SIZE = 512
 
+
 class LabelledDataset(Dataset):
 
-    def __init__(self,path):
+    def __init__(self, path):
 
         labels = {
             name: index for index in range(
@@ -40,12 +39,13 @@ class LabelledDataset(Dataset):
 
         self.labels = labels
         self.names = list(sorted(labels.keys()))
-    
-    def __getitem__(self,index):
+
+    def __getitem__(self, index):
 
         with Image.open(self.names[index]) as img:
 
-            extractor = PatchExtractor(img=img,patch_size=PATCH_SIZE,stride=PATCH_SIZE)
+            extractor = PatchExtractor(
+                img=img, patch_size=PATCH_SIZE, stride=PATCH_SIZE)
             patches = extractor.extract_patches()
 
             label = self.labels[self.names[index]]
@@ -58,6 +58,7 @@ class LabelledDataset(Dataset):
 
     def __len__(self):
         return len(self.names)
+
 
 class TestDataset(Dataset):
     def __init__(self, path):
@@ -75,7 +76,8 @@ class TestDataset(Dataset):
 
         with Image.open(self.names[index]) as img:
 
-            extractor = PatchExtractor(img=img,patch_size=PATCH_SIZE,stride=PATCH_SIZE)
+            extractor = PatchExtractor(
+                img=img, patch_size=PATCH_SIZE, stride=PATCH_SIZE)
             patches = extractor.extract_patches()
 
             b = torch.zeros((len(patches), 3, PATCH_SIZE, PATCH_SIZE))
@@ -88,22 +90,54 @@ class TestDataset(Dataset):
         return len(self.names)
 
 
-
 class ModelArgs:
 
     def __init__(self):
 
-        parser = argparse.ArgumentParser(description='Classification of morphology')
+        parser = argparse.ArgumentParser(
+            description='Classification of morphology')
 
-        parser.add_argument('--testset-path',type=str,required='True',help='Path to test directory or file')
-        parser.add_argument('--val',action='store_true',default=False,help='Set mode to validation')
-        parser.add_argument('--checkpoints-path',type=str,required=True,help='Path to saved model checkpoints')
-        parser.add_argument('--no-cuda',action='store_true',default=False,help='Disables CUDA evaluation')
-        parser.add_argument('--seed',type=int,default=42,help='Random seed (default: 42)')
-        parser.add_argument('--outdir',required=True,help='Directory to output CSV and ROC')
-        parser.add_argument('--verbose',action='store_true',default=False,help='Enables verbose evaluation')
-        parser.add_argument('--gpu-ids',type=str,default='0',help='gpu ids: e.g. 0  0,1,2, 0,2. use -1 for CPU')
-        parser.add_argument('--channels',type=int,default=1,help='number of channels created by the patch-wise network that feeds into the image-wise network (default: 1)')
+        parser.add_argument(
+            '--testset-path',
+            type=str,
+            required='True',
+            help='Path to test directory or file')
+        parser.add_argument(
+            '--val',
+            action='store_true',
+            default=False,
+            help='Set mode to validation')
+        parser.add_argument(
+            '--checkpoints-path',
+            type=str,
+            required=True,
+            help='Path to saved model checkpoints')
+        parser.add_argument(
+            '--no-cuda',
+            action='store_true',
+            default=False,
+            help='Disables CUDA evaluation')
+        parser.add_argument('--seed', type=int, default=42,
+                            help='Random seed (default: 42)')
+        parser.add_argument(
+            '--outdir',
+            required=True,
+            help='Directory to output CSV and ROC')
+        parser.add_argument(
+            '--verbose',
+            action='store_true',
+            default=False,
+            help='Enables verbose evaluation')
+        parser.add_argument(
+            '--gpu-ids',
+            type=str,
+            default='0',
+            help='gpu ids: e.g. 0  0,1,2, 0,2. use -1 for CPU')
+        parser.add_argument(
+            '--channels',
+            type=int,
+            default=1,
+            help='number of channels created by the patch-wise network that feeds into the image-wise network (default: 1)')
         self._parser = parser
 
     def parse(self):
@@ -136,18 +170,22 @@ if __name__ == "__main__":
     if args.cuda:
         torch.cuda.manual_seed(args.seed)
 
-    pw_network = PatchWiseNetwork(args.channels,init=False)
+    pw_network = PatchWiseNetwork(args.channels, init=False)
     pw_network = pw_network.cuda() if args.cuda else pw_network
     verbose(f"Loaded PW Network: {pw_network.name()}")
 
-    iw_network = ImageWiseNetwork(args.channels,init=False)
+    iw_network = ImageWiseNetwork(args.channels, init=False)
     iw_network = iw_network.cuda() if args.cuda else iw_network
     verbose(f"Loaded IW Network: {iw_network.name()}")
 
     assert(os.path.isdir(args.checkpoints_path))
 
-    pw_checkpoint = os.path.join(args.checkpoints_path,"weights_"+pw_network.name()+".pth")
-    iw_checkpoint = os.path.join(args.checkpoints_path,"weights_"+iw_network.name()+".pth")
+    pw_checkpoint = os.path.join(
+        args.checkpoints_path,
+        "weights_" + pw_network.name() + ".pth")
+    iw_checkpoint = os.path.join(
+        args.checkpoints_path,
+        "weights_" + iw_network.name() + ".pth")
 
     assert(os.path.exists(args.checkpoints_path))
 
@@ -167,10 +205,19 @@ if __name__ == "__main__":
     if args.val:
         verbose("Evaluating samples")
 
-        resluts_df = pd.DataFrame(columns=["Filepath","True Label","Predicted","Confidence"])
+        resluts_df = pd.DataFrame(
+            columns=[
+                "Filepath",
+                "True Label",
+                "Predicted",
+                "Confidence"])
 
         CellsDataset = LabelledDataset(path=args.testset_path)
-        CellsLoader = DataLoader(dataset=CellsDataset,batch_size=1,shuffle=True,num_workers=4)
+        CellsLoader = DataLoader(
+            dataset=CellsDataset,
+            batch_size=1,
+            shuffle=True,
+            num_workers=4)
 
         verbose("Dataset and DataLoader (labelled) objects created")
 
@@ -188,14 +235,14 @@ if __name__ == "__main__":
         correct = 0
         total = 0
 
-        for index, (images,label,filepath) in enumerate(CellsLoader):
+        for index, (images, label, filepath) in enumerate(CellsLoader):
 
-            if total%10 == 0 and total !=0:
+            if total % 10 == 0 and total != 0:
                 verbose(f"Evaluated {total} images")
 
             pw_network.eval()
             with torch.no_grad():
-                images = images.view((-1,3,512,512))
+                images = images.view((-1, 3, 512, 512))
                 if args.cuda:
                     images = images.cuda()
                 pw_output = pw_network.features(Variable(images))
@@ -206,8 +253,8 @@ if __name__ == "__main__":
                 if args.cuda:
                     pw_output = pw_output.cuda()
                 iw_output = iw_network(pw_output)
-            
-            _, predicted = torch.max(iw_output.data,1)
+
+            _, predicted = torch.max(iw_output.data, 1)
 
             # ROC Logging
             labels_true = np.append(labels_true, label)
@@ -227,7 +274,8 @@ if __name__ == "__main__":
             iw_output = iw_output.numpy()
             predicted = predicted.numpy()
 
-            maj_prob = 2 - np.argmax(np.sum(np.eye(3)[np.array(predicted).reshape(-1)], axis=0)[::-1])
+            maj_prob = 2 - \
+                np.argmax(np.sum(np.eye(3)[np.array(predicted).reshape(-1)], axis=0)[::-1])
 
             confidence = np.sum(np.array(predicted) == maj_prob)
             confidence = np.round(confidence * 100, 2)
@@ -236,7 +284,11 @@ if __name__ == "__main__":
             if maj_prob == label:
                 correct += 1
 
-            resluts_df.loc[index] = [filepath,LABELS[label],LABELS[maj_prob],confidence]
+            resluts_df.loc[index] = [
+                filepath,
+                LABELS[label],
+                LABELS[maj_prob],
+                confidence]
 
         verbose("Evaluation completed")
         verbose(f"Accuracy: {correct/total}")
@@ -265,31 +317,43 @@ if __name__ == "__main__":
             plt.legend(loc="lower right")
             plt.plot([0, 1], [0, 1], color='navy', lw=2, linestyle='--')
             plt.title('Receiver Operating Characteristic')
-            plt.savefig(os.path.join(args.outdir,f"ROC_{LABELS[lbl]}.png"))
+            plt.savefig(os.path.join(args.outdir, f"ROC_{LABELS[lbl]}.png"))
 
         verbose(f"ROC curves saved to {args.outdir}")
 
-        resluts_df.to_csv(os.path.join(args.outdir,"results.csv"),index=False)
+        resluts_df.to_csv(
+            os.path.join(
+                args.outdir,
+                "results.csv"),
+            index=False)
         verbose(f"Results saved to {os.path.join(args.outdir,'results.csv')}")
 
     else:
         verbose("Computing predictions")
 
-        resluts_df = pd.DataFrame(columns=["Filepath","Predicted","Confidence"])
+        resluts_df = pd.DataFrame(
+            columns=[
+                "Filepath",
+                "Predicted",
+                "Confidence"])
 
         CellsDataset = TestDataset(path=args.testset_path)
-        CellsLoader = DataLoader(dataset=CellsDataset,batch_size=1,shuffle=True,num_workers=4)
+        CellsLoader = DataLoader(
+            dataset=CellsDataset,
+            batch_size=1,
+            shuffle=True,
+            num_workers=4)
 
         verbose("Dataset and DataLoader objects created")
 
-        for index, (images,filepath) in enumerate(CellsLoader):
+        for index, (images, filepath) in enumerate(CellsLoader):
 
-            if index%10 == 0 and index !=0:
+            if index % 10 == 0 and index != 0:
                 verbose(f"Evaluated {index} images")
 
             pw_network.eval()
             with torch.no_grad():
-                images = images.view((-1,3,512,512))
+                images = images.view((-1, 3, 512, 512))
                 if args.cuda:
                     images = images.cuda()
                 pw_output = pw_network.features(Variable(images))
@@ -300,20 +364,25 @@ if __name__ == "__main__":
                 if args.cuda:
                     pw_output = pw_output.cuda()
                 iw_output = iw_network(pw_output)
-            
-            _, predicted = torch.max(iw_output.data,1)
+
+            _, predicted = torch.max(iw_output.data, 1)
 
             iw_output = iw_output.detach().cpu().numpy()
             predicted = predicted.cpu().numpy()
 
-            maj_prob = 2 - np.argmax(np.sum(np.eye(3)[np.array(predicted).reshape(-1)], axis=0)[::-1])
+            maj_prob = 2 - \
+                np.argmax(np.sum(np.eye(3)[np.array(predicted).reshape(-1)], axis=0)[::-1])
 
             confidence = np.sum(np.array(predicted) == maj_prob)
             confidence = np.round(confidence * 100, 2)
 
-            resluts_df.loc[index] = [filepath,LABELS[maj_prob],confidence]
+            resluts_df.loc[index] = [filepath, LABELS[maj_prob], confidence]
 
         verbose("Predictions completed")
 
-        resluts_df.to_csv(os.path.join(args.outdir,"results.csv"),index=False)
+        resluts_df.to_csv(
+            os.path.join(
+                args.outdir,
+                "results.csv"),
+            index=False)
         verbose(f"Results saved to {os.path.join(args.outdir,'results.csv')}")

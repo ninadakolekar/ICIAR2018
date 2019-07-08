@@ -47,17 +47,17 @@ class BaseModel:
     Attributes:
         args (dict): Arguments defining training/validation/test options
         network (int): Network object (PW Network/IW Network)
-        weights (str): Path to the model weights 
+        weights (str): Path to the model weights
     '''
 
     def __init__(self, args, network, weights_path):
-        ''' Initialises the class attributes 
-        
+        ''' Initialises the class attributes
+
         Args:
             args (str): Arguments defining training/validation/test options
             network (int): Network object (PW Network/IW Network)
             weights_path (dict): Path to the model weights
-        
+
         '''
         self.args = args
         self.weights = weights_path
@@ -66,10 +66,10 @@ class BaseModel:
 
     def load(self):
         ''' Load model weights from the model checkpoint
-        
+
         Args:
             None
-        
+
         '''
         try:
             if os.path.exists(self.weights):
@@ -86,10 +86,10 @@ class BaseModel:
 
     def save(self):
         ''' Save model weights to the checkpoint directory
-        
+
         Args:
             None
-        
+
         '''
         print('Saving model to "{}"'.format(self.weights))
         torch.save(self.network.state_dict(), self.weights)
@@ -107,9 +107,10 @@ class PatchWiseModel(BaseModel):
         train_loader (torch.utils.data.DataLoader): Dataloader object for the Patchwise network training
         id (str): Training ID
     '''
+
     def __init__(self, args, network, train=True):
-        ''' Initialises the class attributes 
-        
+        ''' Initialises the class attributes
+
         Args:
             args (dict): Arguments defining training/validation/test options
             network (src.networks.PatchWiseNetwork): Network object (PW Network/IW Network)
@@ -151,11 +152,11 @@ class PatchWiseModel(BaseModel):
         self.id = args.tid
 
     def train(self):
-        ''' Trains the PatchWise Network instance on the given dataset 
-        
+        ''' Trains the PatchWise Network instance on the given dataset
+
         Args:
             None
-        
+
         Returns:
             None
         '''
@@ -273,10 +274,10 @@ class PatchWiseModel(BaseModel):
 
     def validate(self, verbose=True):
         ''' Validates the trained/partially-trained PatchWise Network instance on the given dataset only
-        
+
         Args:
             verbose (bool): If true, validation statistics will be printed to STDOUT
-        
+
         Returns:
             Validation Loss (float)
             Validation Accuracy (float)
@@ -354,11 +355,11 @@ class PatchWiseModel(BaseModel):
 
     def test(self, path, verbose=True):
         ''' Computes the predictions of the morphology(ies) for given dataset (location) using the trained PatchWise Network instance only
-        
+
         Args:
             path (str): Location of the dataset on which predictions are to be computed
             verbose: If true, validation statistics will be printed to STDOUT
-        
+
         Returns:
             List of predicted morphology for each instance in the dataset (list)
         '''
@@ -408,10 +409,10 @@ class PatchWiseModel(BaseModel):
 
     def output(self, input_tensor):
         ''' Computes the feature-map for an input image using the trained PatchWise Network instance
-        
+
         Args:
-            input_tensor (torch.Tensor): Input cell-line image 
-        
+            input_tensor (torch.Tensor): Input cell-line image
+
         Returns:
             Feature-map corresponding to the input image tensor (torch.Tensor)
         '''
@@ -434,8 +435,8 @@ class ImageWiseModel(BaseModel):
     '''
 
     def __init__(self, args, image_wise_network, patch_wise_network):
-        ''' Initialises the class attributes 
-        
+        ''' Initialises the class attributes
+
         Args:
             args (dict): Arguments defining training/validation/test options
             image_wise_network (src.networks.ImageWiseNetwork): Network instance (PW Network/IW Network)
@@ -458,11 +459,11 @@ class ImageWiseModel(BaseModel):
         self._test_loader = None
 
     def train(self):
-        ''' Trains the ImageWise Network instance on the given dataset 
-        
+        ''' Trains the ImageWise Network instance on the given dataset
+
         Args:
             None
-        
+
         Returns:
             None
         '''
@@ -558,7 +559,7 @@ class ImageWiseModel(BaseModel):
 
     def validate(self, verbose=True, roc=False):
         ''' Validates the trained/partially-trained Imagewise Network instance on the given dataset only
-        
+
         Args:
             verbose (bool): If set to true, validation statistics will be printed to STDOUT
             roc (bool): If set to true, ROC curves will be generated for each of the classes
@@ -664,11 +665,11 @@ class ImageWiseModel(BaseModel):
 
     def test(self, path, verbose=True, ensemble=True):
         ''' Computes the predictions of the morphology(ies) for given dataset (location) using the trained ImageWise Network
-        
+
         Args:
             path (str): Location of the dataset on which predictions are to be computed
             verbose: If true, validation statistics will be printed to STDOUT
-        
+
         Returns:
             List of predicted morphology for each instance in the dataset (list)
         '''
@@ -732,11 +733,11 @@ class ImageWiseModel(BaseModel):
 
     def _patch_loader(self, path, augment):
         ''' Private-scope function to load the PW Network feature maps for input to the ImageWise Network
-        
+
         Args:
             path (str): Dataset location
             augment: If set to true, the patches will be augmented (rotation,flip,color-augmentation)
-        
+
         Returns:
             List of predicted morphology for each instance in the dataset (list)
         '''

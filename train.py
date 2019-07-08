@@ -7,18 +7,18 @@
 # --checkpoints-path ../pw1 --gpu-ids 0,1 --network 1 --batch-size 32
 # --test-batch-size 32 --debug 1 --tid pw1
 
+from src.models import PatchWiseModel, ImageWiseModel
+from src.networks import PatchWiseNetwork, ImageWiseNetwork
+from src.options import TrainingOptions
+import torch
 import matplotlib
 matplotlib.use('Agg')
 
 # PyTORCH PACKAGES
 
-import torch
 
 # SOURCE PACKAGES
 
-from src.options import TrainingOptions
-from src.networks import PatchWiseNetwork, ImageWiseNetwork
-from src.models import PatchWiseModel, ImageWiseModel
 
 if __name__ == "__main__":
 

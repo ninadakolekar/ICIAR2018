@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
-"""Defines class for patch extraction 
+"""Defines class for patch extraction
 """
+
 
 class PatchExtractor(object):
     '''
@@ -14,6 +15,7 @@ class PatchExtractor(object):
         stride (int): Stride used to extract patches
         size (int): Size of the patch
     '''
+
     def __init__(self, img, patch_size, stride):
         '''
         Initialises the class attributes
@@ -30,10 +32,10 @@ class PatchExtractor(object):
     def extract_patches(self):
         '''
         Extracts all patches from input image
-        
+
         Args:
             None
-        
+
         Returns:
             list: A list of extracted patches (:py:class:`~PIL.Image.Image` objects)
         '''
@@ -44,10 +46,10 @@ class PatchExtractor(object):
     def extract_patch(self, patch):
         '''
         Extracts a specific patch from input image
-        
+
         Args:
-            tuple: A tuple of integers 
-        
+            tuple: A tuple of integers
+
         Returns:
             list: Extracted patch (:py:class:`~PIL.Image.Image` object)
         '''
@@ -61,10 +63,10 @@ class PatchExtractor(object):
     def shape(self):
         '''
         Computes number of patches along the width and height
-        
+
         Args:
             None
-        
+
         Returns:
             int: Number of patches along the width
             int: Number of patches along the height

@@ -19,6 +19,7 @@ from torchvision.transforms import transforms
 from .patch_extractor import PatchExtractor
 from config import LABELS, IMAGE_SIZE, PATCH_SIZE
 
+
 class PatchWiseDataset(Dataset):
     '''
     Dataset class for input to the patch-wise network
@@ -34,6 +35,7 @@ class PatchWiseDataset(Dataset):
         shape (tuple): A tuple describing shape of the dataset after all augmentations
         augment_size (int): Denotes the number of augmented images added to the dataset correponding to a single example
     '''
+
     def __init__(
             self,
             path,
@@ -41,15 +43,15 @@ class PatchWiseDataset(Dataset):
             rotate=False,
             flip=False,
             enhance=False):
-        ''' Initialises the class attributes 
-        
+        ''' Initialises the class attributes
+
         Args:
             path (str): Path of the train/test/val directory
             stride (int): Stride used to extract patches (defaults to `ICIAR2018.src.config.PATCH_SIZE` in `ICIAR2018.src.config` Module)
             rotate (bool): A boolean indicating whether to use rotation for augmentation or not
             flip (bool): A boolean indicating whether to use flipping for augmentation or not
             enhance (bool): A boolean indicating whether to use color enhancement for augmentation or not
-        
+
         '''
         super().__init__()
 
@@ -78,8 +80,8 @@ class PatchWiseDataset(Dataset):
         self.augment_size = np.prod(self.shape) / len(labels)
 
     def __getitem__(self, index):
-        ''' Fetches an example of given index from the dataset 
-        
+        ''' Fetches an example of given index from the dataset
+
         Args:
             index (int): Index of the image in the dataset
 
@@ -111,8 +113,8 @@ class PatchWiseDataset(Dataset):
             return transforms.ToTensor()(patch), label
 
     def __len__(self):
-        ''' Fetches the length of the dataset 
-        
+        ''' Fetches the length of the dataset
+
         Args:
             None
 
@@ -145,15 +147,15 @@ class ImageWiseDataset(Dataset):
             rotate=False,
             flip=False,
             enhance=False):
-        ''' Initialises the class attributes 
-        
+        ''' Initialises the class attributes
+
         Args:
             path (str): Path of the train/test/val directory
             stride (int): Stride used to extract patches (defaults to `ICIAR2018.src.config.PATCH_SIZE` in `ICIAR2018.src.config` Module)
             rotate (bool): A boolean indicating whether to use rotation for augmentation or not
             flip (bool): A boolean indicating whether to use flipping for augmentation or not
             enhance (bool): A boolean indicating whether to use color enhancement for augmentation or not
-        
+
         '''
         super().__init__()
 
@@ -178,8 +180,8 @@ class ImageWiseDataset(Dataset):
         self.augment_size = np.prod(self.shape) / len(labels)
 
     def __getitem__(self, index):
-        ''' Fetches an example of given index from the dataset 
-        
+        ''' Fetches an example of given index from the dataset
+
         Args:
             index (int): Index of the image in the dataset
 
@@ -216,8 +218,8 @@ class ImageWiseDataset(Dataset):
             return b, label
 
     def __len__(self):
-        ''' Fetches the length of the dataset 
-        
+        ''' Fetches the length of the dataset
+
         Args:
             None
 
@@ -243,11 +245,11 @@ class LabelledDataset(Dataset):
         The stride used to extracted patches is set to `ICIAR2018.src.config.PATCH_SIZE` in `ICIAR2018.src.config` Module
     '''
 
-    def __init__(self,path):
-        ''' Initialises the class attributes 
-        
+    def __init__(self, path):
+        ''' Initialises the class attributes
+
         Args:
-            path (str): Path of the val directory        
+            path (str): Path of the val directory
         '''
 
         labels = {
@@ -260,10 +262,10 @@ class LabelledDataset(Dataset):
 
         self.labels = labels
         self.names = list(sorted(labels.keys()))
-    
-    def __getitem__(self,index):
-        ''' Fetches an example of given index from the dataset 
-        
+
+    def __getitem__(self, index):
+        ''' Fetches an example of given index from the dataset
+
         Args:
             index (int): Index of the image in the dataset
 
@@ -275,7 +277,8 @@ class LabelledDataset(Dataset):
 
         with Image.open(self.names[index]) as img:
 
-            extractor = PatchExtractor(img=img,patch_size=PATCH_SIZE,stride=PATCH_SIZE)
+            extractor = PatchExtractor(
+                img=img, patch_size=PATCH_SIZE, stride=PATCH_SIZE)
             patches = extractor.extract_patches()
 
             label = self.labels[self.names[index]]
@@ -287,8 +290,8 @@ class LabelledDataset(Dataset):
             return b, label, self.names[index]
 
     def __len__(self):
-        ''' Fetches the length of the dataset 
-        
+        ''' Fetches the length of the dataset
+
         Args:
             None
 
@@ -296,6 +299,7 @@ class LabelledDataset(Dataset):
             int: Returns the length of the dataset
         '''
         return len(self.names)
+
 
 class TestDataset(Dataset):
     '''
@@ -311,11 +315,12 @@ class TestDataset(Dataset):
     Note:
         The stride used to extracted patches is set to `ICIAR2018.src.config.PATCH_SIZE` in `ICIAR2018.src.config` Module
     '''
+
     def __init__(self, path):
-        ''' Initialises the class attributes 
-        
+        ''' Initialises the class attributes
+
         Args:
-            path (str): Path of the test directory        
+            path (str): Path of the test directory
         '''
 
         super().__init__()
@@ -329,8 +334,8 @@ class TestDataset(Dataset):
         self.names = list((names))
 
     def __getitem__(self, index):
-        ''' Fetches an example of given index from the dataset 
-        
+        ''' Fetches an example of given index from the dataset
+
         Args:
             index (int): Index of the image in the dataset
 
@@ -341,7 +346,8 @@ class TestDataset(Dataset):
 
         with Image.open(self.names[index]) as img:
 
-            extractor = PatchExtractor(img=img,patch_size=PATCH_SIZE,stride=PATCH_SIZE)
+            extractor = PatchExtractor(
+                img=img, patch_size=PATCH_SIZE, stride=PATCH_SIZE)
             patches = extractor.extract_patches()
 
             b = torch.zeros((len(patches), 3, PATCH_SIZE, PATCH_SIZE))
@@ -351,8 +357,8 @@ class TestDataset(Dataset):
             return b, self.names[index]
 
     def __len__(self):
-        ''' Fetches the length of the dataset 
-        
+        ''' Fetches the length of the dataset
+
         Args:
             None
 
