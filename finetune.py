@@ -60,10 +60,6 @@ if __name__ == "__main__":
 
     args = TrainingOptions().parse()
 
-    def verbose(msg):
-        if args.verbose:
-            print(f"INFO: {msg}")
-
     torch.manual_seed(args.seed)
     if args.cuda:
         torch.cuda.manual_seed(args.seed)
