@@ -127,7 +127,7 @@ if __name__ == "__main__":
                 if args.cuda:
                     images = images.cuda()
                 pw_output = pw_network.features(Variable(images))
-            pw_output = pw_output.squeeze().view((args.batch_size, -1, 64, 64)).data.cpu()
+            pw_output = pw_output.squeeze().view((-1, 12, 64, 64)).data.cpu()
 
             iw_network.train()
 
