@@ -68,11 +68,8 @@ if __name__ == "__main__":
     if args.cuda:
         torch.cuda.manual_seed(args.seed)
 
-    data = LabelledDataset("/home/nitish/Desktop/ninad/matrigel_labels.csv")
-
-    train_size = int(0.8 * len(data))
-    test_size = len(data) - train_size
-    train_dataset, test_dataset = torch.utils.data.random_split(data, [train_size, test_size])
+    train_dataset = LabelledDataset("/home/nitish/Desktop/ninad/matrigel_train.csv")
+    test_dataset = LabelledDataset("/home/nitish/Desktop/ninad/matrigel_val.csv")
 
     pw_network = PatchWiseNetwork(args.channels,init=False)
     pw_network = pw_network.cuda() if args.cuda else pw_network
