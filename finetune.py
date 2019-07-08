@@ -69,11 +69,11 @@ if __name__ == "__main__":
 
     pw_network = PatchWiseNetwork(args.channels,init=False)
     pw_network = pw_network.cuda() if args.cuda else pw_network
-    verbose(f"Loaded PW Network: {pw_network.name()}")
+    print(f"Loaded PW Network: {pw_network.name()}")
 
     iw_network = ImageWiseNetwork(args.channels,init=False)
     iw_network = iw_network.cuda() if args.cuda else iw_network
-    verbose(f"Loaded IW Network: {iw_network.name()}")
+    print(f"Loaded IW Network: {iw_network.name()}")
 
     assert(os.path.isdir(args.checkpoints_path))
 
@@ -86,10 +86,10 @@ if __name__ == "__main__":
     assert(os.path.exists(iw_checkpoint) and os.path.isfile(pw_checkpoint))
 
     pw_network.load_state_dict(torch.load(pw_checkpoint))
-    verbose("Loaded PW Weights: {pw_checkpoint}")
+    print("Loaded PW Weights: {pw_checkpoint}")
 
     iw_network.load_state_dict(torch.load(iw_checkpoint))
-    verbose("Loaded IW Weights: {iw_checkpoint}")
+    print("Loaded IW Weights: {iw_checkpoint}")
 
     train_loader = DataLoader(dataset=train_dataset,batch_size=16,shuffle=True,num_workers=4)
     test_loader = DataLoader(dataset=test_dataset,batch_size=1,shuffle=True,num_workers=4)
@@ -118,7 +118,7 @@ if __name__ == "__main__":
         for index, (images,label,filepath) in enumerate(train_loader):
 
             if index%10 == 0 and index !=0:
-                verbose(f"Evaluated {index} images")
+                print(f"Evaluated {index} images")
 
             pw_network.eval()
             with torch.no_grad():
