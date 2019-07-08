@@ -26,6 +26,35 @@ from src.patch_extractor import PatchExtractor
 LABELS = ['grape', 'round', 'stellate']
 PATCH_SIZE = 512
 
+class CSVDataset(Dataset):
+
+    def __init__(self,path):
+
+        df = pd.read_csv(path)
+
+        labels = {df.iloc[i,0].replace("'",'')[1:-1].replace(',','').strip():LABELS.index(df.iloc[i,1].lower()) for i in range(len(df))}
+
+        self.labels = labels
+        self.names = list(sorted(labels.keys()))
+    
+    def __getitem__(self,index):
+
+        with Image.open(self.names[index]) as img:
+
+            extractor = PatchExtractor(img=img,patch_size=PATCH_SIZE,stride=PATCH_SIZE)
+            patches = extractor.extract_patches()
+
+            label = self.labels[self.names[index]]
+
+            b = torch.zeros((len(patches), 3, PATCH_SIZE, PATCH_SIZE))
+            for i in range(len(patches)):
+                b[i] = transforms.ToTensor()(patches[i])
+
+            return b, label, self.names[index]
+
+    def __len__(self):
+        return len(self.names)
+
 class LabelledDataset(Dataset):
 
     def __init__(self,path):
@@ -166,7 +195,7 @@ if __name__ == "__main__":
 
         resluts_df = pd.DataFrame(columns=["Filepath","True Label","Predicted","Confidence"])
 
-        CellsDataset = LabelledDataset(path=args.testset_path)
+        CellsDataset = CSVDataset(path=args.testset_path)
         CellsLoader = DataLoader(dataset=CellsDataset,batch_size=1,shuffle=True,num_workers=4)
 
         verbose("Dataset and DataLoader (labelled) objects created")
