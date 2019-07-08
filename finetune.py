@@ -92,8 +92,8 @@ if __name__ == "__main__":
     iw_network.load_state_dict(torch.load(iw_checkpoint))
     print(f"Loaded IW Weights: {iw_checkpoint}")
 
-    pw_network = nn.DataParallel(pw_network,device_ids=[0,1])
-    iw_network = nn.DataParallel(iw_network,device_ids=[0,1])
+    pw_network = (pw_network,device_ids=[0,1])
+    iw_network = (iw_network,device_ids=[0,1])
 
     train_loader = DataLoader(dataset=train_dataset,batch_size=args.batch_size,shuffle=True,num_workers=4)
     test_loader = DataLoader(dataset=test_dataset,batch_size=1,shuffle=True,num_workers=4)
@@ -129,7 +129,7 @@ if __name__ == "__main__":
                 images = images.view((-1,3,512,512))
                 if args.cuda:
                     images = images.cuda()
-                pw_output = pw_network.module.features(Variable(images))
+                pw_output = pw_network.features(Variable(images))
             pw_output = pw_output.squeeze().view((1, -1, 64, 64)).data.cpu()
 
             iw_network.train()
@@ -170,7 +170,7 @@ if __name__ == "__main__":
                 images = images.view((-1,3,512,512))
                 if args.cuda:
                     images = images.cuda()
-                pw_output = pw_network.module.features(Variable(images))
+                pw_output = pw_network.features(Variable(images))
             pw_output = pw_output.squeeze().view((1, -1, 64, 64)).data.cpu()
 
             iw_network.eval()
@@ -190,7 +190,7 @@ if __name__ == "__main__":
         'Saving model to "{}"'.format(
             args.checkpoints_path +
             '/ft_weights_' +
-            iw_network.module.name() +
+            iw_network.name() +
             '_epoch' +
             str(epoch) +
             '.pth'))
@@ -198,7 +198,7 @@ if __name__ == "__main__":
             iw_network.state_dict(),
             args.checkpoints_path +
             '/ft_weights_' +
-            iw_network.module.name() +
+            iw_network.name() +
             '_epoch' +
             str(epoch) +
             '.pth')

@@ -152,10 +152,10 @@ if __name__ == "__main__":
     assert(os.path.exists(iw_checkpoint) and os.path.isfile(pw_checkpoint))
 
     pw_network.load_state_dict(torch.load(pw_checkpoint))
-    verbose("Loaded PW Weights: {pw_checkpoint}")
+    verbose(f"Loaded PW Weights: {pw_checkpoint}")
 
     iw_network.load_state_dict(torch.load(iw_checkpoint))
-    verbose("Loaded IW Weights: {iw_checkpoint}")
+    verbose(f"Loaded IW Weights: {iw_checkpoint}")
 
     pw_network.eval()
     iw_network.eval()
