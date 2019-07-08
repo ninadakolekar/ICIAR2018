@@ -17,7 +17,7 @@ from torchvision.transforms import transforms
 # SOURCE PACKAGES
 
 from .patch_extractor import PatchExtractor
-from config import LABELS, IMAGE_SIZE, PATCH_SIZE
+from src.config import LABELS, IMAGE_SIZE, PATCH_SIZE
 
 class PatchWiseDataset(Dataset):
     '''
