@@ -15,6 +15,7 @@ from sklearn.preprocessing import label_binarize
 from sklearn.metrics import roc_curve, auc
 
 import torch
+import torch.nn as nn
 from torch.utils.data import Dataset, DataLoader
 from torchvision.transforms import transforms
 from torch.autograd import Variable
