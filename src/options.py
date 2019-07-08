@@ -136,7 +136,7 @@ class TrainingOptions(object):
             dict: A dictionary containing the selected options for the training
         '''
         opt = self._parser.parse_args()
-        os.environ['CUDA_VISIBLE_DEVICES'] = opt.gpu_ids
+        # os.environ['CUDA_VISIBLE_DEVICES'] = opt.gpu_ids
         opt.cuda = not opt.no_cuda and torch.cuda.is_available()
         opt.debug = opt.debug != 0
 
