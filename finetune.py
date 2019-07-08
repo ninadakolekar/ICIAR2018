@@ -70,16 +70,16 @@ if __name__ == "__main__":
 
     pw_network = PatchWiseNetwork(args.channels,init=False)
     pw_network = pw_network.cuda() if args.cuda else pw_network
-    print(f"Loaded PW Network: {pw_network.module.name()}")
+    print(f"Loaded PW Network: {pw_network.name()}")
 
     iw_network = ImageWiseNetwork(args.channels,init=False)
     iw_network = iw_network.cuda() if args.cuda else iw_network
-    print(f"Loaded IW Network: {iw_network.module.name()}")
+    print(f"Loaded IW Network: {iw_network.name()}")
 
     assert(os.path.isdir(args.checkpoints_path))
 
-    pw_checkpoint = os.path.join(args.checkpoints_path,"weights_"+pw_network.module.name()+".pth")
-    iw_checkpoint = os.path.join(args.checkpoints_path,"weights_"+iw_network.module.name()+".pth")
+    pw_checkpoint = os.path.join(args.checkpoints_path,"weights_"+pw_network.name()+".pth")
+    iw_checkpoint = os.path.join(args.checkpoints_path,"weights_"+iw_network.name()+".pth")
 
     assert(os.path.exists(args.checkpoints_path))
 
