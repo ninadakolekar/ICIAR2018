@@ -1,23 +1,36 @@
+# -*- coding: utf-8 -*-
+"""Defines model functions for PW and IW Network
+"""
+
 import time
 import ntpath
 import datetime
+import os
 
+import numpy as np
 import pandas as pd
 import matplotlib as mpl
 import matplotlib.pyplot as plt
+import seaborn as sns
 
+# PyTorch PACKAGES
+
+import torch
 import torch.optim as optim
 import torch.nn.functional as F
 import matplotlib.pyplot as ply
 from torch.autograd import Variable
 from torch.utils.data import DataLoader, TensorDataset
 
+# sklearn PACKAGES
+
 from sklearn.metrics import roc_curve, auc, confusion_matrix
 from sklearn.preprocessing import label_binarize
 
-import seaborn as sns
+# SOURCE PACKAGES
 
-from .datasets import *
+from .datasets import PatchWiseDataset, ImageWiseDataset, TestDataset
+from .config import LABELS, PATCH_SIZE
 
 TRAIN_PATH = '/train'
 VALIDATION_PATH = '/test'
@@ -26,13 +39,38 @@ mpl.use('Agg')
 
 
 class BaseModel:
+    '''
+    Base Model class for initialization and saving of model weights
+
+    An object of this class loads and saves model weights for PW and IW network.
+
+    Attributes:
+        args (dict): Arguments defining training/validation/test options
+        network (int): Network object (PW Network/IW Network)
+        weights (str): Path to the model weights 
+    '''
+
     def __init__(self, args, network, weights_path):
+        ''' Initialises the class attributes 
+        
+        Args:
+            args (str): Arguments defining training/validation/test options
+            network (int): Network object (PW Network/IW Network)
+            weights_path (dict): Path to the model weights
+        
+        '''
         self.args = args
         self.weights = weights_path
         self.network = network.cuda() if args.cuda else network
         self.load()
 
     def load(self):
+        ''' Load model weights from the model checkpoint
+        
+        Args:
+            None
+        
+        '''
         try:
             if os.path.exists(self.weights):
                 self.network.load_state_dict(torch.load(self.weights))
@@ -47,12 +85,37 @@ class BaseModel:
                 self.weights)
 
     def save(self):
+        ''' Save model weights to the checkpoint directory
+        
+        Args:
+            None
+        
+        '''
         print('Saving model to "{}"'.format(self.weights))
         torch.save(self.network.state_dict(), self.weights)
 
 
 class PatchWiseModel(BaseModel):
+    '''
+    Model class for Patchwise Network. Inherits from the Base Model class.
+
+    An object of this class trains (or validates/tests) an instance of (trained) PatchWiseNetwork.
+
+    Attributes:
+        args (dict): Arguments defining training/validation/test options
+        network (int): Network object (PW Network/IW Network)
+        train_loader (torch.utils.data.DataLoader): Dataloader object for the Patchwise network training
+        id (str): Training ID
+    '''
     def __init__(self, args, network, train=True):
+        ''' Initialises the class attributes 
+        
+        Args:
+            args (dict): Arguments defining training/validation/test options
+            network (src.networks.PatchWiseNetwork): Network object (PW Network/IW Network)
+            train (bool): Boolean indicating whether PatchWise Network is to be trained or not
+        '''
+
         print(f"PatchWiseModel: {network.name()}")
         super(
             PatchWiseModel,
@@ -88,6 +151,14 @@ class PatchWiseModel(BaseModel):
         self.id = args.tid
 
     def train(self):
+        ''' Trains the PatchWise Network instance on the given dataset 
+        
+        Args:
+            None
+        
+        Returns:
+            None
+        '''
 
         logs = pd.DataFrame(
             columns=[
@@ -200,14 +271,16 @@ class PatchWiseModel(BaseModel):
                 mean_val_acc //
                 epoch))
 
-        # plt.figure(figsize=(5,5))
-        # sns.heatmap(best_cm, xticklabels=LABELS, yticklabels=LABELS, annot=True, fmt="d");
-        # plt.title("Confusion matrix")
-        # plt.ylabel('True class')
-        # plt.xlabel('Predicted class')
-        # plt.savefig(os.path.join(self.args.checkpoints_path,f"cm_{self.id}_{best_epoch}.png"))
-
     def validate(self, verbose=True):
+        ''' Validates the trained/partially-trained PatchWise Network instance on the given dataset only
+        
+        Args:
+            verbose (bool): If true, validation statistics will be printed to STDOUT
+        
+        Returns:
+            Validation Loss (float)
+            Validation Accuracy (float)
+        '''
         self.network.eval()
 
         test_loss = 0
@@ -280,6 +353,16 @@ class PatchWiseModel(BaseModel):
         return test_loss, test_acc
 
     def test(self, path, verbose=True):
+        ''' Computes the predictions of the morphology(ies) for given dataset (location) using the trained PatchWise Network instance only
+        
+        Args:
+            path (str): Location of the dataset on which predictions are to be computed
+            verbose: If true, validation statistics will be printed to STDOUT
+        
+        Returns:
+            List of predicted morphology for each instance in the dataset (list)
+        '''
+
         self.network.eval()
         dataset = TestDataset(path=path, stride=PATCH_SIZE, augment=False)
         data_loader = DataLoader(dataset=dataset, batch_size=1, shuffle=False)
@@ -297,16 +380,6 @@ class PatchWiseModel(BaseModel):
 
             output = self.network(Variable(image))
             _, predicted = torch.max(output.data, 1)
-
-            #
-            # the following measures are prioritised based on [invasive, insitu, benign, normal]
-            # the original labels are [normal, benign, insitu, invasive], so we reverse the order using [::-1]
-            # output data shape is 12x4
-            # sum_prop: sum of probabilities among y axis: (1, 4), reverse, and take the index  of the largest value
-            # max_prop: max of probabilities among y axis: (1, 4), reverse, and take the index  of the largest value
-            # maj_prop: majority voting: create a one-hot vector of predicted
-            # values: (12, 4), sum among y axis: (1, 4), reverse, and take the
-            # index  of the largest value
 
             sum_prob = 2 - \
                 np.argmax(np.sum(np.exp(output.data.cpu().numpy()), axis=0)[::-1])
@@ -334,50 +407,41 @@ class PatchWiseModel(BaseModel):
         return res
 
     def output(self, input_tensor):
+        ''' Computes the feature-map for an input image using the trained PatchWise Network instance
+        
+        Args:
+            input_tensor (torch.Tensor): Input cell-line image 
+        
+        Returns:
+            Feature-map corresponding to the input image tensor (torch.Tensor)
+        '''
         self.network.eval()
         with torch.no_grad():
             res = self.network.features(Variable(input_tensor))
         return res.squeeze()
 
-    def visualize(self, path, channel=0):
-        self.network.eval()
-        dataset = TestDataset(path=path, stride=PATCH_SIZE)
-        data_loader = DataLoader(dataset=dataset, batch_size=1, shuffle=False)
-
-        for index, (image, file_name) in enumerate(data_loader):
-
-            if self.args.cuda:
-                image = image[0].cuda()
-
-            patches = self.output(image)
-
-            output = patches.cpu().data.numpy()
-
-            map = np.zeros((3 * 64, 4 * 64))
-
-            for i in range(12):
-                row = i // 4
-                col = i % 4
-                map[row * 64:(row + 1) * 64,
-                    col * 64:(col + 1) * 64] = output[i]
-
-            if len(map.shape) > 2:
-                map = map[channel]
-
-            with Image.open(file_name[0]) as img:
-                ply.subplot(121)
-                ply.axis('off')
-                ply.imshow(np.array(img))
-
-                ply.subplot(122)
-                ply.imshow(map, cmap='gray')
-                ply.axis('off')
-
-                ply.show()
-
 
 class ImageWiseModel(BaseModel):
+    '''
+    Model class for ImageWise Network. Inherits from the Base Model class.
+
+    An object of this class trains (or validates/tests) an instance of (trained) ImageWise Network.
+
+    Attributes:
+        args (dict): Arguments defining training/validation/test options
+        patch_wise_model (src.networks.PatchWiseNetwork): The trained Patch-wise model to be used while training/validating Image-wise network
+        _test_loader (torch.utils.data.DataLoader): Dataloader object for the Patchwise network testing time
+    '''
+
     def __init__(self, args, image_wise_network, patch_wise_network):
+        ''' Initialises the class attributes 
+        
+        Args:
+            args (dict): Arguments defining training/validation/test options
+            image_wise_network (src.networks.ImageWiseNetwork): Network instance (PW Network/IW Network)
+            patch_wise_network (src.networks.PatchWiseNetwork): The trained Patch-wise model to be used while training/validating Image-wise network
+        '''
+
         print(f"ImageWiseModel: {image_wise_network.name()}")
         super(
             ImageWiseModel,
@@ -394,6 +458,15 @@ class ImageWiseModel(BaseModel):
         self._test_loader = None
 
     def train(self):
+        ''' Trains the ImageWise Network instance on the given dataset 
+        
+        Args:
+            None
+        
+        Returns:
+            None
+        '''
+
         self.network.train()
         print('ImageWiseModel.train: Evaluating patch-wise model...')
 
@@ -484,6 +557,17 @@ class ImageWiseModel(BaseModel):
                 epoch))
 
     def validate(self, verbose=True, roc=False):
+        ''' Validates the trained/partially-trained Imagewise Network instance on the given dataset only
+        
+        Args:
+            verbose (bool): If set to true, validation statistics will be printed to STDOUT
+            roc (bool): If set to true, ROC curves will be generated for each of the classes
+
+        Returns:
+            Validation Loss (float)
+            Validation Accuracy (float)
+        '''
+
         self.network.eval()
 
         if self._test_loader is None:
@@ -579,6 +663,16 @@ class ImageWiseModel(BaseModel):
         return acc
 
     def test(self, path, verbose=True, ensemble=True):
+        ''' Computes the predictions of the morphology(ies) for given dataset (location) using the trained ImageWise Network
+        
+        Args:
+            path (str): Location of the dataset on which predictions are to be computed
+            verbose: If true, validation statistics will be printed to STDOUT
+        
+        Returns:
+            List of predicted morphology for each instance in the dataset (list)
+        '''
+
         self.network.eval()
         dataset = TestDataset(path=path, stride=PATCH_SIZE, augment=ensemble)
         data_loader = DataLoader(dataset=dataset, batch_size=1, shuffle=False)
@@ -637,6 +731,16 @@ class ImageWiseModel(BaseModel):
         return res
 
     def _patch_loader(self, path, augment):
+        ''' Private-scope function to load the PW Network feature maps for input to the ImageWise Network
+        
+        Args:
+            path (str): Dataset location
+            augment: If set to true, the patches will be augmented (rotation,flip,color-augmentation)
+        
+        Returns:
+            List of predicted morphology for each instance in the dataset (list)
+        '''
+
         images_path = '{}/{}_images.npy'.format(
             self.args.checkpoints_path, self.network.name())
         labels_path = '{}/{}_labels.npy'.format(

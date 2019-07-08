@@ -1,18 +1,56 @@
+# -*- coding: utf-8 -*-
+"""Defines network architectures for PW and IW Network
+"""
+
 import numpy as np
 import torch.nn as nn
 import torch.nn.functional as F
 
 
 class BaseNetwork(nn.Module):
+     '''
+    Base Network class for initializing network weights and contain meta-information about the network
+    Inherits from `torch.nn.Module` class
+
+    Attributes:
+        _name (str): Name of the network
+        _channels (int): Number of channels in the output of the PW Network/input to the IW network
+    '''
+
     def __init__(self, name, channels=1):
+        ''' Initialises the class attributes 
+        
+        Args:
+            name (str): Name of the network
+            channels (int): Number of channels in the output of the PW Network/input to the IW network
+        
+        '''
         super(BaseNetwork, self).__init__()
         self._name = name
         self._channels = channels
 
     def name(self):
+        ''' Return the name of the network
+        
+        Args:
+            None
+        
+        Returns:
+            Network name (str)
+        
+        '''
         return self._name
 
     def initialize_weights(self):
+        ''' Initializes the network weights
+        
+        Args:
+            None
+        
+        Returns:
+            None
+        
+        '''
         for m in self.modules():
             if isinstance(m, nn.Conv2d):
                 nn.init.kaiming_normal_(m.weight, nonlinearity='relu')
@@ -29,7 +67,23 @@ class BaseNetwork(nn.Module):
 
 
 class PatchWiseNetwork(BaseNetwork):
+    '''
+    Describes network architecture of the Patch-wise network.
+    Inherits from the Base Network class.
+
+    Attributes:
+        features (torch.nn.Sequential): Sequential object encoding the architecture of PW Network to produce required feature-maps
+        classifier (torch.nn.Sequential): Sequential object encoding the architecture of PW Network to compute prediction from feature-maps
+    '''
+
     def __init__(self, channels=1,init=True):
+        ''' Initialises the class attributes 
+        
+        Args:
+            channels (int): Number of channels in the output of the PW Network
+            init (bool): Boolean indicating whether to initialize the PatchWiseNetwork instance or not
+        '''
+
         super(PatchWiseNetwork, self).__init__('pw' + str(channels), channels)
 
         self.features = nn.Sequential(
@@ -175,6 +229,15 @@ class PatchWiseNetwork(BaseNetwork):
             self.initialize_weights()
 
     def forward(self, x):
+        ''' Computes forward pass of the patch-wise network on given input  
+        
+        Args:
+            x (`torch.Tensor`): Input Tesnor
+        
+        Returns:
+            Softmax activations corresponding to each class (`torch.Tensor`)
+        '''
+
         x = self.features(x)
         x = x.view(x.size(0), -1)
         x = self.classifier(x)
@@ -183,7 +246,23 @@ class PatchWiseNetwork(BaseNetwork):
 
 
 class ImageWiseNetwork(BaseNetwork):
+    '''
+    Describes network architecture of the Image-wise network.
+    Inherits from the Base Network class.
+
+    Attributes:
+        features (torch.nn.Sequential): Sequential object encoding the architecture of PW Network to produce required feature-maps
+        classifier (torch.nn.Sequential): Sequential object encoding the architecture of PW Network to compute prediction from feature-maps
+    '''
+    
     def __init__(self, channels=1,init=True):
+        ''' Initialises the class attributes 
+        
+        Args:
+            channels (int): Number of channels in the output of the PW Network
+            init (bool): Boolean indicating whether to initialize the ImageWiseNetwork instance or not
+        '''
+
         super(ImageWiseNetwork, self).__init__('iw' + str(channels), channels)
 
         self.features = nn.Sequential(
@@ -265,6 +344,15 @@ class ImageWiseNetwork(BaseNetwork):
             self.initialize_weights()
 
     def forward(self, x):
+        ''' Computes forward pass of the image-wise network on given input  
+        
+        Args:
+            x (`torch.Tensor`): Input Tesnor
+        
+        Returns:
+            Softmax activations corresponding to each class (`torch.Tensor`)
+        '''
+
         x = self.features(x)
         x = x.view(x.size(0), -1)
         x = self.classifier(x)
