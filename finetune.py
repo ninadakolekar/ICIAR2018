@@ -47,6 +47,7 @@ class LabelledDataset(Dataset):
             patches = extractor.extract_patches()
 
             label = self.labels[self.names[index]]
+            print(label,type(label))
 
             b = torch.zeros((len(patches), 3, PATCH_SIZE, PATCH_SIZE))
             for i in range(len(patches)):
