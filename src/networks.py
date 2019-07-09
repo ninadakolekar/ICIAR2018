@@ -2,7 +2,6 @@
 """Defines network architectures for PW and IW Network
 """
 
-import numpy as np
 import torch.nn as nn
 import torch.nn.functional as F
 
